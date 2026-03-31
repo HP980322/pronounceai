@@ -1,127 +1,130 @@
-# 🗣 PronounceAI — English Pronunciation & Grammar Coach
+# Pronounce**AI** — English Pronunciation & Grammar Coach
 
-A browser-based English learning tool powered by **Google Gemini AI (free tier)**. Upload or record your voice and get instant feedback on pronunciation, grammar, and fluency — no account needed for users, no credit card needed for you.
+> **100% local. Zero API keys. Zero cost. No internet required after install.**
 
----
-
-## ✨ Features
-
-- 🎵 **Upload audio** — drag & drop MP3, WAV, M4A, OGG, WEBM
-- 🎙 **Live recording** — record in-browser with real-time waveform
-- 🤖 **AI-powered feedback** (Gemini 2.5 Flash-Lite, free tier):
-  - Fluency score (0–100)
-  - Pronunciation issue detection
-  - Grammar correction
-  - Personalized improvement tips
-- 🛡 **Rate limiting** — protects your free quota from abuse
-- ✏️ **Text override** — paste text directly to skip audio
+Like a background remover that runs locally — PronounceAI uses:
+- **[OpenAI Whisper](https://github.com/openai/whisper)** — local speech-to-text (~140 MB model, runs on CPU)
+- **[LanguageTool](https://languagetool.org)** — local grammar checker (open-source, JVM-based)
+- **[FastAPI](https://fastapi.tiangolo.com)** — lightweight Python web framework
 
 ---
 
-## 🆓 Free Tier Details
+## Features
 
-Uses **Gemini 2.5 Flash-Lite** — the most generous free Gemini model:
-
-| Limit | Amount |
-|-------|--------|
-| Requests per day | 1,000 |
-| Requests per minute | 15 |
-| Cost | **$0** |
-| Credit card required | No |
-
-> ⚠️ The Gemini free tier **cannot be used to serve users in the EU/EEA/UK/Switzerland** per Google's terms.
->
-> On the free tier, **your prompts may be used by Google to improve their models**.
+- Upload audio (MP3, WAV, M4A, OGG, WEBM, FLAC) or record live
+- Auto-transcription with Whisper running locally
+- Grammar correction with LanguageTool
+- Pronunciation pattern tips
+- Fluency score and summary
+- Text-only mode (paste text to skip audio)
+- Your voice **never leaves your machine**
 
 ---
 
-## 🚀 Getting Started
+## Requirements
 
-### 1. Clone & install
+- Python 3.9+
+- Java 8+ (required by LanguageTool — check with `java -version`)
+- ~500 MB disk space (Whisper model + LanguageTool data, downloaded on first run)
+- ffmpeg (required by Whisper for audio decoding)
+
+### Install ffmpeg
+
+```bash
+# macOS
+brew install ffmpeg
+
+# Ubuntu / Debian
+sudo apt install ffmpeg
+
+# Windows
+# Download from https://ffmpeg.org/download.html and add to PATH
+```
+
+---
+
+## Getting Started
+
+### 1. Clone
 
 ```bash
 git clone https://github.com/HP980322/pronounceai.git
 cd pronounceai
-npm install
 ```
 
-### 2. Get a free Gemini API key
-
-1. Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-2. Sign in with your Google account
-3. Click **Create API Key** — no credit card needed
-
-### 3. Configure
+### 2. Install Python dependencies
 
 ```bash
-cp .env.example .env
-# Edit .env and set GEMINI_API_KEY=AIza...
+pip install -r requirements.txt
 ```
 
-### 4. Run
+On first run, Whisper will automatically download the `base.en` model (~140 MB).
+LanguageTool will download its grammar data (~200 MB) the first time it runs.
+
+### 3. Run
 
 ```bash
-npm start        # production
-npm run dev      # auto-reload (needs nodemon)
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Open `http://localhost:3000`.
+Open **http://localhost:8000** in your browser.
+
+First startup takes 30-60 seconds while models load. Subsequent requests are fast.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 pronounceai/
-├── index.html       # Frontend UI
-├── app.js           # Frontend JavaScript
-├── server.js        # Express backend + Gemini proxy + rate limiter
-├── package.json
-├── .env.example     # Copy → .env, add your key
-├── .gitignore
+├── main.py              # FastAPI app (Whisper + LanguageTool)
+├── requirements.txt
+├── static/
+│   ├── index.html       # Frontend UI
+│   └── app.js           # Frontend JavaScript
 └── README.md
 ```
 
 ---
 
-## 🛡 Rate Limiting
+## API Endpoints
 
-| Setting | Default | Env var |
-|---------|---------|---------|
-| Max requests per window | 5 | `RATE_LIMIT` |
-| Window duration | 10 min | `RATE_WINDOW_MS` |
-| Max transcript length | 2000 chars | `MAX_CHARS` |
-| Allowed origin | `*` | `ALLOWED_ORIGIN` |
-
----
-
-## 🚢 Deploying
-
-### Railway (recommended)
-1. Push to GitHub → connect at [railway.app](https://railway.app)
-2. Set `GEMINI_API_KEY` in environment variables → deploy
-
-### Render
-Same steps at [render.com](https://render.com) — Web Service, Node environment.
-
-### Heroku
-```bash
-heroku create
-heroku config:set GEMINI_API_KEY=AIza...
-git push heroku main
-```
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/health` | Health check |
+| `POST` | `/api/analyze-audio` | Upload audio file → transcribe + analyze |
+| `POST` | `/api/analyze-text` | Send text → analyze grammar |
 
 ---
 
-## 🌐 Browser Support
+## Environment Variables (optional)
 
-| Feature | Chrome | Edge | Firefox | Safari |
-|---------|--------|------|---------|--------|
-| Upload + record | ✅ | ✅ | ✅ | ✅ |
-| Auto-transcription | ✅ | ✅ | ⚠️ | ⚠️ |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RATE_LIMIT` | `10` | Max requests per window per IP |
+| `RATE_WINDOW_SECS` | `600` | Rate window in seconds |
 
 ---
 
-## 📄 License
+## Models Used
+
+| Model | Size | Purpose | Runs on |
+|-------|------|---------|----------|
+| `whisper-base.en` | ~140 MB | Speech-to-text | CPU (or GPU if available) |
+| `LanguageTool en-US` | ~200 MB | Grammar checking | JVM (local) |
+
+To use a more accurate (but slower) Whisper model, change `"base.en"` to `"small.en"` or `"medium.en"` in `main.py`.
+
+---
+
+## Privacy
+
+- Audio is processed entirely on your machine
+- No data is sent to any external server
+- No API keys, no accounts, no tracking
+
+---
+
+## License
 
 MIT
