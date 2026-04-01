@@ -53,7 +53,6 @@ textarea::placeholder{color:var(--muted)}
 .ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
 .ghost:hover{border-color:var(--accent);color:var(--accent)}
 .red{background:var(--danger);color:#fff}
-.teal{background:var(--accent2);color:#0d0f14}
 .big-btn{padding:14px;font-size:15px;font-weight:500;border-radius:12px;margin-top:18px;width:100%}
 .msg{padding:12px 18px;border-radius:10px;font-size:13px;margin-top:14px;line-height:1.5}
 .msg.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:var(--danger)}
@@ -73,9 +72,23 @@ textarea::placeholder{color:var(--muted)}
 .fl{list-style:none;padding:0}
 .fl li{display:flex;gap:10px;margin-bottom:8px;font-size:.88rem;line-height:1.6}
 .fl li::before{content:'\2192';color:var(--accent);flex-shrink:0;margin-top:3px}
-/* TTS corrected box */
-.cor-wrap{position:relative}
-.cor{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:10px;padding:14px 18px 14px 18px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent2);line-height:1.8}
+.cor{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:10px;padding:14px 18px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent2);line-height:1.8}
+/* Voice profile card */
+.vp-card{background:linear-gradient(135deg,rgba(94,234,212,.04),rgba(232,197,71,.04));border:1px solid rgba(94,234,212,.2);border-radius:14px;padding:20px 22px;margin-bottom:24px;animation:fadeUp .5s ease both}
+.vp-title{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:4px}
+.vp-sub{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:14px;line-height:1.5}
+.vp-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.vp-sample-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:rgba(94,234,212,.12);border:1px solid rgba(94,234,212,.3);color:var(--accent2);transition:opacity .2s}
+.vp-sample-btn:hover{opacity:.8}
+.vp-sample-btn.sampling{animation:tts-pulse .8s infinite;border-color:var(--danger);color:var(--danger);background:rgba(248,113,113,.1)}
+.vp-stats{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.vp-stat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);display:flex;flex-direction:column;gap:2px}
+.vp-stat-label{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.vp-bar-wrap{margin-top:10px}
+.vp-bar-track{height:4px;background:var(--border);border-radius:2px;position:relative;overflow:hidden;margin-top:4px}
+.vp-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .5s ease}
+#sampCanvas{width:100%;height:36px;border-radius:6px;background:var(--surface2);margin-top:10px;display:none}
+#sampCanvas.show{display:block}
 /* TTS player panel */
 .tts-panel{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-top:12px;display:flex;flex-direction:column;gap:10px}
 .tts-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -86,7 +99,6 @@ textarea::placeholder{color:var(--muted)}
 .tts-btn.play-corr{background:rgba(94,234,212,.12);border:1px solid rgba(94,234,212,.3);color:var(--accent2)}
 .tts-btn.stop-btn{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:var(--danger)}
 .tts-btn.speaking{animation:tts-pulse 1s infinite}
-.tts-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 select.tts-sel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;cursor:pointer;max-width:200px}
 select.tts-sel option{background:var(--surface)}
 input[type=range].tts-range{-webkit-appearance:none;appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;width:80px}
@@ -99,6 +111,13 @@ input[type=range].tts-range::-webkit-slider-thumb{-webkit-appearance:none;width:
 .waveacc span:nth-child(3){animation-delay:.3s;height:10px}
 .waveacc span:nth-child(4){animation-delay:.45s;height:16px}
 .waveacc span:nth-child(5){animation-delay:.6s;height:7px}
+.voice-mode-toggle{display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.toggle-wrap{position:relative;width:36px;height:20px;cursor:pointer}
+.toggle-wrap input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;border-radius:10px;background:var(--border);transition:.3s}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;border-radius:50%;background:#fff;transition:.3s}
+input:checked+.toggle-slider{background:var(--accent2)}
+input:checked+.toggle-slider::before{transform:translateX(16px)}
 .hidden{display:none!important}
 footer{text-align:center;margin-top:56px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em}
 footer a{color:var(--accent);text-decoration:none}
@@ -116,8 +135,37 @@ footer a{color:var(--accent);text-decoration:none}
 <header>
   <div class="badge"><span class="dot"></span>Free &middot; No Login &middot; No API Key</div>
   <h1>Pronounce<span>AI</span></h1>
-  <p class="sub">Record or upload your English voice &mdash; get grammar corrections and hear the correct pronunciation played back.</p>
+  <p class="sub">Record your English, get grammar corrections, then hear the corrected version in a voice tuned to match yours.</p>
 </header>
+
+<!-- Voice Profile -->
+<div class="vp-card" id="vpCard">
+  <div class="vp-title">&#127908; Your Voice Profile</div>
+  <div class="vp-sub">Sample 5 seconds of your voice. We'll measure your pitch &amp; speaking rate, then tune playback to sound like you.</div>
+  <div class="vp-row">
+    <button class="vp-sample-btn" id="vpBtn" onclick="toggleSample()">&#127908; Sample My Voice (5s)</button>
+    <span id="vpStatus" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">Not sampled yet</span>
+  </div>
+  <canvas id="sampCanvas"></canvas>
+  <div class="vp-stats hidden" id="vpStats">
+    <div class="vp-stat">
+      <span class="vp-stat-label">Pitch</span>
+      <span id="vpPitch">-</span>
+    </div>
+    <div class="vp-stat">
+      <span class="vp-stat-label">Speed</span>
+      <span id="vpSpeed">-</span>
+    </div>
+    <div class="vp-stat">
+      <span class="vp-stat-label">Tone</span>
+      <span id="vpTone">-</span>
+    </div>
+    <div class="vp-stat">
+      <span class="vp-stat-label">Status</span>
+      <span id="vpMatch" style="color:var(--success)">-</span>
+    </div>
+  </div>
+</div>
 
 <div class="card">
   <div class="tabs">
@@ -126,7 +174,6 @@ footer a{color:var(--accent);text-decoration:none}
     <div class="tab"     onclick="switchTab('txt')">&#9998; Text</div>
   </div>
 
-  <!-- RECORD -->
   <div id="recP">
     <div class="rec-area">
       <canvas id="wv"></canvas>
@@ -146,7 +193,6 @@ footer a{color:var(--accent);text-decoration:none}
     </div>
   </div>
 
-  <!-- UPLOAD -->
   <div id="upP" class="hidden">
     <div class="drop" id="dz">
       <input type="file" id="fi" accept="audio/*" onchange="onFile(this.files[0])">
@@ -166,7 +212,6 @@ footer a{color:var(--accent);text-decoration:none}
     </div>
   </div>
 
-  <!-- TEXT -->
   <div id="txtP" class="hidden">
     <div class="lbl" style="margin-bottom:10px">Paste or type English text</div>
     <textarea id="ti" placeholder="e.g. Yesterday I goes to the market and buyed some apple..."></textarea>
@@ -183,11 +228,9 @@ footer a{color:var(--accent);text-decoration:none}
     <div class="lt" id="lt">Analyzing...</div>
   </div>
 
-  <!-- Score -->
   <div id="trs" class="card hidden">
     <div class="lbl">&#128172; What you said</div>
     <div class="tx-box" id="tb"></div>
-    <!-- TTS: play original -->
     <div class="tts-panel" style="margin-top:12px">
       <div class="tts-row">
         <span class="tts-label">Listen</span>
@@ -198,12 +241,25 @@ footer a{color:var(--accent);text-decoration:none}
       <div class="tts-row">
         <span class="tts-label">Voice</span>
         <select class="tts-sel" id="voiceSel" onchange="voiceChanged()"></select>
+        <label class="voice-mode-toggle" title="Use your voice profile settings">
+          <span style="color:var(--accent2)">&#127908; My Voice</span>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="useMyVoice" checked onchange="updateVoiceMode()">
+            <span class="toggle-slider"></span>
+          </label>
+        </label>
       </div>
-      <div class="tts-row">
+      <div class="tts-row" id="manualSpeedRow">
         <span class="tts-label">Speed</span>
-        <input type="range" class="tts-range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.9" oninput="document.getElementById('speedVal').textContent=this.value+'x'">
-        <span class="speed-val" id="speedVal">0.9x</span>
+        <input type="range" class="tts-range" id="speedRange" min="0.5" max="1.5" step="0.05" value="0.9" oninput="document.getElementById('speedVal').textContent=parseFloat(this.value).toFixed(2)+'x'">
+        <span class="speed-val" id="speedVal">0.90x</span>
       </div>
+      <div class="tts-row" id="manualPitchRow">
+        <span class="tts-label">Pitch</span>
+        <input type="range" class="tts-range" id="pitchRange" min="0.5" max="2" step="0.05" value="1" oninput="document.getElementById('pitchVal').textContent=parseFloat(this.value).toFixed(2)">
+        <span class="speed-val" id="pitchVal">1.00</span>
+      </div>
+      <div id="myVoiceInfo" class="tts-row" style="font-size:11px;color:var(--accent2);font-family:'DM Mono',monospace"></div>
     </div>
   </div>
 
@@ -212,32 +268,27 @@ footer a{color:var(--accent);text-decoration:none}
       <div class="fh"><div class="ft">Overall Fluency Score</div><div class="sc" id="sd">&mdash;</div></div>
       <div class="fb"><div class="lbl">Summary</div><div style="font-size:.92rem;line-height:1.7" id="sum"></div></div>
     </div>
-
     <div class="card fc" id="pc">
       <div class="fh"><div class="ft">&#128483; Pronunciation Patterns</div></div>
       <div class="fb"><ul class="fl" id="pl"></ul></div>
     </div>
-
-    <!-- Grammar + corrected voice -->
     <div class="card fc">
       <div class="fh"><div class="ft">&#9999; Grammar Corrections</div></div>
       <div class="fb">
         <div class="lbl">Corrected Version</div>
         <div class="cor" id="ct"></div>
-
-        <!-- TTS: play corrected -->
         <div class="tts-panel" style="margin-top:10px">
           <div class="tts-row">
             <span class="tts-label">&#128266; Hear it</span>
             <button class="tts-btn play-corr" onclick="ttsPlay('corr')" id="btnCorr">&#9654; Play corrected version</button>
           </div>
-          <p style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">Listen carefully and repeat after the native voice</p>
+          <p style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">
+            &#127908; Played in your voice tone &mdash; listen and repeat
+          </p>
         </div>
-
         <div style="margin-top:16px"><div class="lbl">Issues Found</div><ul class="fl" id="gl"></ul></div>
       </div>
     </div>
-
     <div class="card fc">
       <div class="fh"><div class="ft">&#128161; Tips to Improve</div></div>
       <div class="fb"><ul class="fl" id="tl"></ul></div>
@@ -257,96 +308,296 @@ let curTab='rec', aFile=null, blob=null, liveTranscript='';
 let mRec=null, chunks=[], recInt=null, actx=null, anl=null, raf=null;
 let recSec=0, isRec=false, srLive=null;
 let storedOrig='', storedCorr='';
-let ttsVoices=[], preferredVoice=null, isSpeaking=false;
+let ttsVoices=[], preferredVoice=null;
+
+// Voice profile — measured from user's sample
+let voiceProfile = null; // { pitch: 0-2, rate: 0.5-1.5, tone: 'deep'|'mid'|'high' }
+let isSampling = false;
+let sampMRec=null, sampChunks=[], sampCtx=null, sampAnl=null, sampRaf=null, sampInt=null, sampSec=0;
+
+// ── Voice Profile Sampling ─────────────────────────────────────────────────
+
+// Detect fundamental frequency using autocorrelation on AudioBuffer
+function detectPitch(buffer, sampleRate) {
+  const SIZE = buffer.length;
+  const MAX_SAMPLES = Math.floor(SIZE / 2);
+  let bestOffset = -1, bestCorr = 0;
+  let lastCorr = 1, foundGoodCorr = false;
+  const THRESHOLD = 0.9;
+
+  for (let offset = 8; offset < MAX_SAMPLES; offset++) {
+    let corr = 0;
+    for (let i = 0; i < MAX_SAMPLES; i++) {
+      corr += Math.abs(buffer[i] - buffer[i + offset]);
+    }
+    corr = 1 - corr / MAX_SAMPLES;
+    if (corr > THRESHOLD && corr > lastCorr) {
+      foundGoodCorr = true;
+      if (corr > bestCorr) { bestCorr = corr; bestOffset = offset; }
+    } else if (foundGoodCorr) break;
+    lastCorr = corr;
+  }
+  return bestOffset === -1 ? -1 : sampleRate / bestOffset;
+}
+
+// Map Hz to browser SpeechSynthesis pitch (0.5–2.0)
+// Human speech: ~85Hz (deep male) – ~255Hz (high female)
+// browser pitch 1.0 = neutral, <1 = lower, >1 = higher
+function hzToTTSPitch(hz) {
+  if (hz <= 0) return 1.0;
+  // log-scale map: 80Hz→0.5, 180Hz→1.0, 280Hz→1.8
+  const mapped = 0.5 + (Math.log2(hz / 80)) * 0.8;
+  return Math.max(0.5, Math.min(2.0, parseFloat(mapped.toFixed(2))));
+}
+
+// Map syllable rate to TTS rate
+function syllRateToTTSRate(syllPerSec) {
+  // average English: ~4 syllables/sec at normal pace = TTS rate 1.0
+  const rate = syllPerSec / 4.0;
+  return Math.max(0.5, Math.min(1.5, parseFloat(rate.toFixed(2))));
+}
+
+async function toggleSample() {
+  if (isSampling) { stopSample(); return; }
+  await startSample();
+}
+
+async function startSample() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    sampChunks = []; sampSec = 0; isSampling = true;
+
+    const btn = document.getElementById('vpBtn');
+    btn.textContent = '⏹ Stop sampling';
+    btn.classList.add('sampling');
+    document.getElementById('vpStatus').textContent = 'Listening... speak naturally for 5 seconds';
+    document.getElementById('sampCanvas').classList.add('show');
+
+    sampCtx = new AudioContext();
+    sampAnl = sampCtx.createAnalyser(); sampAnl.fftSize = 2048;
+    const src = sampCtx.createMediaStreamSource(stream);
+    src.connect(sampAnl);
+    drawSampWv();
+
+    sampMRec = new MediaRecorder(stream);
+    sampMRec.ondataavailable = e => sampChunks.push(e.data);
+    sampMRec.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      if (sampCtx) { sampCtx.close(); sampCtx = null; }
+      cancelAnimationFrame(sampRaf);
+      document.getElementById('sampCanvas').classList.remove('show');
+      await analyzeVoiceSample();
+    };
+    sampMRec.start(100);
+
+    sampInt = setInterval(() => {
+      sampSec++;
+      document.getElementById('vpStatus').textContent = 'Sampling... ' + (5 - sampSec) + 's left';
+      if (sampSec >= 5) stopSample();
+    }, 1000);
+
+  } catch(e) {
+    document.getElementById('vpStatus').textContent = 'Microphone denied';
+    isSampling = false;
+  }
+}
+
+function stopSample() {
+  clearInterval(sampInt);
+  if (sampMRec && sampMRec.state !== 'inactive') sampMRec.stop();
+  isSampling = false;
+  const btn = document.getElementById('vpBtn');
+  btn.textContent = '🎙 Sample My Voice (5s)';
+  btn.classList.remove('sampling');
+}
+
+async function analyzeVoiceSample() {
+  document.getElementById('vpStatus').textContent = 'Analyzing your voice...';
+  try {
+    const sampleBlob = new Blob(sampChunks, { type: 'audio/webm' });
+    const arrayBuffer = await sampleBlob.arrayBuffer();
+    const offCtx = new OfflineAudioContext(1, arrayBuffer.byteLength, 44100);
+    const decoded = await offCtx.decodeAudioData(arrayBuffer);
+
+    const channelData = decoded.getChannelData(0);
+    const sr = decoded.sampleRate;
+
+    // Analyze in 50ms windows, collect pitch readings
+    const winSize = Math.floor(sr * 0.05);
+    const pitchReadings = [];
+    let rmsSum = 0, rmsCount = 0;
+    // Count zero-crossings for rate approximation
+    let crossings = 0;
+
+    for (let i = 0; i + winSize < channelData.length; i += winSize) {
+      const win = channelData.slice(i, i + winSize);
+      // RMS
+      const rms = Math.sqrt(win.reduce((s, v) => s + v*v, 0) / win.length);
+      rmsSum += rms; rmsCount++;
+      // Only pitch-detect on voiced frames (above noise floor)
+      if (rms > 0.01) {
+        const hz = detectPitch(win, sr);
+        if (hz > 60 && hz < 400) pitchReadings.push(hz);
+      }
+      // Zero crossings
+      for (let j = 1; j < win.length; j++) {
+        if ((win[j-1] >= 0) !== (win[j] >= 0)) crossings++;
+      }
+    }
+
+    const avgRMS = rmsSum / Math.max(rmsCount, 1);
+    const avgHz = pitchReadings.length
+      ? pitchReadings.reduce((a,b) => a+b, 0) / pitchReadings.length
+      : 130;
+
+    // Syllable rate estimate from zero-crossing rate
+    const duration = channelData.length / sr;
+    const zcr = crossings / duration;
+    // rough: high zcr = faster speech (consonants); map to syllables/sec
+    const estimatedSyllPerSec = Math.max(2, Math.min(7, zcr / 120));
+
+    const ttsPitch = hzToTTSPitch(avgHz);
+    const ttsRate  = syllRateToTTSRate(estimatedSyllPerSec);
+    const tone     = avgHz < 130 ? 'Deep' : avgHz < 200 ? 'Mid-range' : 'High';
+
+    voiceProfile = { pitch: ttsPitch, rate: ttsRate, tone, hz: Math.round(avgHz), syllPerSec: estimatedSyllPerSec.toFixed(1) };
+
+    // Update UI
+    document.getElementById('vpStats').classList.remove('hidden');
+    document.getElementById('vpPitch').textContent = Math.round(avgHz) + ' Hz';
+    document.getElementById('vpSpeed').textContent = estimatedSyllPerSec.toFixed(1) + ' syl/s';
+    document.getElementById('vpTone').textContent = tone;
+    document.getElementById('vpMatch').textContent = 'Profile ready ✓';
+    document.getElementById('vpStatus').textContent = 'Voice profile captured! Playback will now match your tone.';
+
+    // Sync sliders
+    document.getElementById('speedRange').value = ttsRate;
+    document.getElementById('speedVal').textContent = ttsRate.toFixed(2) + 'x';
+    document.getElementById('pitchRange').value = ttsPitch;
+    document.getElementById('pitchVal').textContent = ttsPitch.toFixed(2);
+
+    updateVoiceMode();
+
+  } catch(e) {
+    document.getElementById('vpStatus').textContent = 'Could not analyze sample. Try again.';
+    console.error(e);
+  }
+}
+
+function drawSampWv() {
+  const cv = document.getElementById('sampCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.offsetWidth, H = cv.offsetHeight;
+  cv.width = W; cv.height = H;
+  const arr = new Uint8Array(sampAnl.frequencyBinCount);
+  function draw() {
+    sampRaf = requestAnimationFrame(draw);
+    sampAnl.getByteTimeDomainData(arr);
+    ctx.clearRect(0,0,W,H); ctx.beginPath();
+    ctx.strokeStyle = '#5eead4'; ctx.lineWidth = 1.5;
+    arr.forEach((v,i) => { const x=i*(W/arr.length), y=(v/128)*(H/2); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke();
+  }
+  draw();
+}
 
 // ── TTS setup ─────────────────────────────────────────────────────────────
-function loadVoices(){
+function loadVoices() {
   ttsVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
   const sel = document.getElementById('voiceSel');
-  if(!sel) return;
+  if (!sel) return;
   sel.innerHTML = '';
-  ttsVoices.forEach((v,i) => {
+  ttsVoices.forEach((v, i) => {
     const opt = document.createElement('option');
     opt.value = i;
-    opt.textContent = v.name + (v.default?' (default)':'');
+    opt.textContent = v.name + (v.default ? ' (default)' : '');
     sel.appendChild(opt);
   });
-  // prefer US English female voices
   const preferred = ttsVoices.findIndex(v =>
     v.lang === 'en-US' && /female|samantha|karen|victoria|zira|google us/i.test(v.name)
   );
-  if(preferred >= 0){ sel.value = preferred; preferredVoice = ttsVoices[preferred]; }
-  else if(ttsVoices.length){ sel.value = 0; preferredVoice = ttsVoices[0]; }
+  if (preferred >= 0) { sel.value = preferred; preferredVoice = ttsVoices[preferred]; }
+  else if (ttsVoices.length) { sel.value = 0; preferredVoice = ttsVoices[0]; }
 }
 
-function voiceChanged(){
+function voiceChanged() {
   const sel = document.getElementById('voiceSel');
   preferredVoice = ttsVoices[parseInt(sel.value)] || null;
+}
+
+function updateVoiceMode() {
+  const useMyVoice = document.getElementById('useMyVoice').checked && voiceProfile;
+  const info = document.getElementById('myVoiceInfo');
+  if (useMyVoice) {
+    info.textContent = '🎙 Using your voice profile: ' + voiceProfile.hz + 'Hz pitch, ' + voiceProfile.rate.toFixed(2) + 'x speed';
+    document.getElementById('speedRange').value = voiceProfile.rate;
+    document.getElementById('speedVal').textContent = voiceProfile.rate.toFixed(2) + 'x';
+    document.getElementById('pitchRange').value = voiceProfile.pitch;
+    document.getElementById('pitchVal').textContent = voiceProfile.pitch.toFixed(2);
+  } else {
+    info.textContent = '';
+  }
 }
 
 window.speechSynthesis.onvoiceschanged = loadVoices;
 window.addEventListener('load', loadVoices);
 
-function ttsPlay(which){
+function ttsPlay(which) {
   ttsStop();
   const text = which === 'corr' ? storedCorr : storedOrig;
-  if(!text) return;
+  if (!text) return;
 
+  const useMyVoice = document.getElementById('useMyVoice').checked && voiceProfile;
   const utt = new SpeechSynthesisUtterance(text);
   utt.lang  = 'en-US';
-  utt.rate  = parseFloat(document.getElementById('speedRange').value);
-  utt.pitch = 1;
-  if(preferredVoice) utt.voice = preferredVoice;
+  utt.rate  = useMyVoice ? voiceProfile.rate  : parseFloat(document.getElementById('speedRange').value);
+  utt.pitch = useMyVoice ? voiceProfile.pitch : parseFloat(document.getElementById('pitchRange').value);
+  if (preferredVoice) utt.voice = preferredVoice;
 
   utt.onstart = () => {
-    isSpeaking = true;
     document.getElementById('btnStop').classList.remove('hidden');
     document.getElementById('waveAcc').classList.remove('hidden');
-    const btn = which==='corr' ? document.getElementById('btnCorr') : document.getElementById('btnOrig');
-    if(btn) btn.classList.add('speaking');
+    const btn = which === 'corr' ? document.getElementById('btnCorr') : document.getElementById('btnOrig');
+    if (btn) btn.classList.add('speaking');
   };
   utt.onend = utt.onerror = () => {
-    isSpeaking = false;
     document.getElementById('btnStop').classList.add('hidden');
     document.getElementById('waveAcc').classList.add('hidden');
     document.getElementById('btnCorr').classList.remove('speaking');
     document.getElementById('btnOrig').classList.remove('speaking');
   };
-
   speechSynthesis.speak(utt);
 }
 
-function ttsStop(){
+function ttsStop() {
   speechSynthesis.cancel();
-  isSpeaking = false;
   document.getElementById('btnStop').classList.add('hidden');
   document.getElementById('waveAcc').classList.add('hidden');
-  document.getElementById('btnCorr').classList.remove('speaking');
-  document.getElementById('btnOrig').classList.remove('speaking');
+  ['btnCorr','btnOrig'].forEach(id => document.getElementById(id).classList.remove('speaking'));
 }
 
 // ── tabs ──────────────────────────────────────────────────────────────────
-function switchTab(t){
+function switchTab(t) {
   curTab = t;
   document.querySelectorAll('.tab').forEach((el,i) =>
     el.classList.toggle('on', ['rec','up','txt'][i] === t)
   );
-  document.getElementById('recP').classList.toggle('hidden', t !== 'rec');
-  document.getElementById('upP') .classList.toggle('hidden', t !== 'up');
-  document.getElementById('txtP').classList.toggle('hidden', t !== 'txt');
+  ['recP','upP','txtP'].forEach((id,i) =>
+    document.getElementById(id).classList.toggle('hidden', ['rec','up','txt'][i] !== t)
+  );
   clrMsg();
 }
 
 // ── file upload ────────────────────────────────────────────────────────────
-function onFile(f){
-  if(!f || !f.type.startsWith('audio/')){ err('Please select an audio file.'); return; }
+function onFile(f) {
+  if (!f || !f.type.startsWith('audio/')) { err('Please select an audio file.'); return; }
   aFile = f;
   document.getElementById('fn').textContent = f.name + '  (' + fmtB(f.size) + ')';
   document.getElementById('fc').classList.remove('hidden');
   clrMsg();
 }
-function clrFile(){ aFile=null; document.getElementById('fi').value=''; document.getElementById('fc').classList.add('hidden'); }
-function fmtB(b){ return b > 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.round(b/1024)+' KB'; }
+function clrFile() { aFile=null; document.getElementById('fi').value=''; document.getElementById('fc').classList.add('hidden'); }
+function fmtB(b) { return b > 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.round(b/1024)+' KB'; }
 
 const dz = document.getElementById('dz');
 dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
@@ -354,14 +605,13 @@ dz.addEventListener('dragleave', () => dz.classList.remove('over'));
 dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if(e.dataTransfer.files[0]) onFile(e.dataTransfer.files[0]); });
 
 // ── recording + live SR ────────────────────────────────────────────────────
-async function togRec(){ isRec ? stopRec() : await startRec(); }
+async function togRec() { isRec ? stopRec() : await startRec(); }
 
-async function startRec(){
-  try{
+async function startRec() {
+  try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     chunks=[]; blob=null; liveTranscript=''; recSec=0; isRec=true;
-    document.getElementById('recChip').classList.add('hidden');
-    document.getElementById('noSRChip').classList.add('hidden');
+    ['recChip','noSRChip'].forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('fallbackRec').classList.remove('show');
     document.getElementById('liveBox').textContent='';
     document.getElementById('liveBox').classList.remove('show');
@@ -374,12 +624,12 @@ async function startRec(){
     mRec.onstop = () => {
       blob = new Blob(chunks, { type: 'audio/webm' });
       stream.getTracks().forEach(t => t.stop());
-      if(actx){ actx.close(); actx=null; }
+      if (actx) { actx.close(); actx=null; }
       cancelAnimationFrame(raf); flatLine();
       document.getElementById('pb').disabled = false;
       document.getElementById('db').disabled = false;
       setRst('Recorded: ' + fmtT(recSec), false);
-      if(liveTranscript){
+      if (liveTranscript) {
         document.getElementById('liveBox').textContent = liveTranscript;
         document.getElementById('liveBox').classList.add('show');
         document.getElementById('recChip').classList.remove('hidden');
@@ -396,13 +646,13 @@ async function startRec(){
     setRst('Recording\u2026 0:00', true);
 
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(SR){
+    if (SR) {
       srLive = new SR(); srLive.lang='en-US'; srLive.continuous=true; srLive.interimResults=true;
       let finalText = '';
       srLive.onresult = e => {
         let interim = '';
-        for(let i = e.resultIndex; i < e.results.length; i++){
-          if(e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
           else interim += e.results[i][0].transcript;
         }
         const display = (finalText + interim).trim();
@@ -411,26 +661,25 @@ async function startRec(){
         liveTranscript = finalText.trim();
       };
       srLive.onerror = () => {};
-      try{ srLive.start(); } catch(e){}
+      try { srLive.start(); } catch(e) {}
     }
-  } catch(e){ err('Microphone access denied. Please allow microphone permissions.'); }
+  } catch(e) { err('Microphone access denied. Please allow microphone permissions.'); }
 }
 
-function stopRec(){
-  if(srLive){ try{ srLive.stop(); } catch(e){} srLive=null; }
-  if(mRec && mRec.state !== 'inactive') mRec.stop();
+function stopRec() {
+  if (srLive) { try { srLive.stop(); } catch(e){} srLive=null; }
+  if (mRec && mRec.state !== 'inactive') mRec.stop();
   clearInterval(recInt); isRec=false;
   document.getElementById('rb').classList.remove('on');
 }
 
-function playRec(){ if(blob) new Audio(URL.createObjectURL(blob)).play(); }
+function playRec() { if (blob) new Audio(URL.createObjectURL(blob)).play(); }
 
-function disRec(){
+function disRec() {
   blob=null; chunks=[]; liveTranscript='';
   document.getElementById('pb').disabled=true;
   document.getElementById('db').disabled=true;
-  document.getElementById('recChip').classList.add('hidden');
-  document.getElementById('noSRChip').classList.add('hidden');
+  ['recChip','noSRChip'].forEach(id => document.getElementById(id).classList.add('hidden'));
   document.getElementById('fallbackRec').classList.remove('show');
   document.getElementById('liveBox').classList.remove('show');
   document.getElementById('liveBox').textContent='';
@@ -438,37 +687,34 @@ function disRec(){
   setRst('Press the button and speak in English', false); flatLine();
 }
 
-function setRst(m, a){ const el=document.getElementById('rst'); el.textContent=m; el.className='rec-st'+(a?' live':''); }
-function fmtT(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function setRst(m,a) { const el=document.getElementById('rst'); el.textContent=m; el.className='rec-st'+(a?' live':''); }
+function fmtT(s) { return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
 
-// ── waveform ───────────────────────────────────────────────────────────────
-function drawWv(){
+function drawWv() {
   const cv=document.getElementById('wv'), ctx=cv.getContext('2d');
   const W=cv.offsetWidth, H=cv.offsetHeight; cv.width=W; cv.height=H;
   const arr=new Uint8Array(anl.frequencyBinCount);
-  function draw(){
+  function draw() {
     raf=requestAnimationFrame(draw); anl.getByteTimeDomainData(arr);
     ctx.clearRect(0,0,W,H); ctx.beginPath(); ctx.strokeStyle='#e8c547'; ctx.lineWidth=1.5;
-    arr.forEach((v,i)=>{ const x=i*(W/arr.length), y=(v/128)*(H/2); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    arr.forEach((v,i) => { const x=i*(W/arr.length),y=(v/128)*(H/2); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
     ctx.stroke();
   } draw();
 }
-function flatLine(){
-  const cv=document.getElementById('wv'); if(!cv) return;
+function flatLine() {
+  const cv=document.getElementById('wv'); if (!cv) return;
   const ctx=cv.getContext('2d'), W=cv.offsetWidth||600, H=cv.offsetHeight||48;
   cv.width=W; cv.height=H; ctx.clearRect(0,0,W,H);
   ctx.beginPath(); ctx.strokeStyle='#2a2f42'; ctx.lineWidth=1.5; ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
 }
 
-// ── status ─────────────────────────────────────────────────────────────────
-function err(m){ document.getElementById('sm').innerHTML='<div class="msg err">\u26a0\ufe0f '+m+'</div>'; }
-function clrMsg(){ document.getElementById('sm').innerHTML=''; }
+function err(m) { document.getElementById('sm').innerHTML='<div class="msg err">\u26a0\ufe0f '+m+'</div>'; }
+function clrMsg() { document.getElementById('sm').innerHTML=''; }
 
-// ── transcribe uploaded file via Web Speech playback ───────────────────────
-function transcribeFile(audioBlob){
+function transcribeFile(audioBlob) {
   return new Promise(resolve => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SR) return resolve('');
+    if (!SR) return resolve('');
     const audio = new Audio(URL.createObjectURL(audioBlob));
     const rec = new SR(); rec.lang='en-US'; rec.continuous=true; rec.interimResults=false;
     let result='';
@@ -479,20 +725,19 @@ function transcribeFile(audioBlob){
   });
 }
 
-// ── grammar check + local fallback ────────────────────────────────────────
-async function checkGrammar(text){
-  try{
+async function checkGrammar(text) {
+  try {
     const fd=new FormData(); fd.append('text',text); fd.append('language','en-US');
     const r=await fetch('https://api.languagetool.org/v2/check',{method:'POST',body:fd});
-    if(!r.ok) throw new Error('HTTP '+r.status);
+    if (!r.ok) throw new Error('HTTP '+r.status);
     return await r.json();
-  }catch(e){
+  } catch(e) {
     console.warn('LanguageTool unavailable, using local rules:', e.message);
     return localGrammarCheck(text);
   }
 }
 
-function localGrammarCheck(text){
+function localGrammarCheck(text) {
   const matches=[];
   const rules=[
     [/\b(I|he|she|it|we|they)\s+goes\b/gi,'Verb agreement: "goes" should be "go" with this subject'],
@@ -505,16 +750,16 @@ function localGrammarCheck(text){
     [/\bhe\s+are\b|\bshe\s+are\b|\bit\s+are\b/gi,'Use "is" not "are" with he/she/it'],
     [/\bthey\s+is\b|\bwe\s+is\b|\byou\s+is\b/gi,'Use "are" not "is" with they/we/you'],
   ];
-  for(const [re,message] of rules){
+  for (const [re,message] of rules) {
     const reCopy=new RegExp(re.source,re.flags); let m;
-    while((m=reCopy.exec(text))!==null)
+    while ((m=reCopy.exec(text))!==null)
       matches.push({offset:m.index,length:m[0].length,message,context:{text:m[0]},replacements:[]});
   }
   return {matches};
 }
 
-function applyFixes(text, matches){
-  if(!matches||!matches.length) return text;
+function applyFixes(text, matches) {
+  if (!matches||!matches.length) return text;
   let result=text, offset=0;
   [...matches].filter(m=>m.replacements&&m.replacements.length).sort((a,b)=>a.offset-b.offset).forEach(m=>{
     const fix=m.replacements[0].value, s=m.offset+offset, e2=s+m.length;
@@ -523,7 +768,6 @@ function applyFixes(text, matches){
   return result;
 }
 
-// ── pronunciation heuristics ───────────────────────────────────────────────
 const PRON=[
   [/\bth[eaio]/i,"'th' sounds - lightly place your tongue between your teeth"],
   [/tion\b/i,"'-tion' endings - pronounce as 'shun' (e.g. na-SHUN)"],
@@ -534,51 +778,44 @@ const PRON=[
   [/\bl\w+/i,"Words with 'l' - tongue tip touches just behind the upper teeth"],
   [/\bw[aeio]/i,"Words with 'w' - round your lips fully before speaking"],
 ];
-function getPron(text){ return PRON.filter(([re])=>re.test(text)).map(([,tip])=>tip).slice(0,4); }
+function getPron(text) { return PRON.filter(([re])=>re.test(text)).map(([,tip])=>tip).slice(0,4); }
 
-// ── scoring ────────────────────────────────────────────────────────────────
-function calcScore(g,p,w){ return Math.max(10,Math.min(100,100-Math.min(g*9,45)-Math.min(p*5,25)+Math.min(w*2,15))); }
-function makeSummary(s,wc){
-  if(s>=90) return 'Excellent! Your '+wc+'-word message sounds very natural with minimal errors.';
-  if(s>=75) return 'Good English! '+wc+' words with just a few areas to polish. Keep it up!';
-  if(s>=55) return 'Solid intermediate English. Your '+wc+'-word message has some corrections below.';
-  if(s>=35) return 'Developing skills in your '+wc+'-word message. Focus on the feedback below.';
+function calcScore(g,p,w) { return Math.max(10,Math.min(100,100-Math.min(g*9,45)-Math.min(p*5,25)+Math.min(w*2,15))); }
+function makeSummary(s,wc) {
+  if (s>=90) return 'Excellent! Your '+wc+'-word message sounds very natural with minimal errors.';
+  if (s>=75) return 'Good English! '+wc+' words with just a few areas to polish. Keep it up!';
+  if (s>=55) return 'Solid intermediate English. Your '+wc+'-word message has some corrections below.';
+  if (s>=35) return 'Developing skills in your '+wc+'-word message. Focus on the feedback below.';
   return 'Keep practicing! Every correction helps. Review the feedback carefully.';
 }
 
-// ── main analyze ───────────────────────────────────────────────────────────
-async function analyze(){
+async function analyze() {
   clrMsg(); ttsStop();
   let transcript = '';
 
-  if(curTab==='txt'){
+  if (curTab==='txt') {
     transcript = document.getElementById('ti').value.trim();
-    if(!transcript){ err('Please enter some text to analyze.'); return; }
-
-  } else if(curTab==='rec'){
-    if(!blob){ err('Please record some audio first - press the red button, speak, then press it again to stop.'); return; }
+    if (!transcript) { err('Please enter some text to analyze.'); return; }
+  } else if (curTab==='rec') {
+    if (!blob) { err('Please record some audio first - press the red button, speak, then press it again to stop.'); return; }
     transcript = liveTranscript || document.getElementById('fbText').value.trim();
-    if(!transcript){
+    if (!transcript) {
       err('No transcript captured. Please type what you said in the box above, then click Analyze.');
-      document.getElementById('fallbackRec').classList.add('show');
-      return;
+      document.getElementById('fallbackRec').classList.add('show'); return;
     }
-
-  } else if(curTab==='up'){
-    if(!aFile){ err('Please upload an audio file first.'); return; }
+  } else if (curTab==='up') {
+    if (!aFile) { err('Please upload an audio file first.'); return; }
     setBusy(true);
     document.getElementById('res').classList.remove('hidden');
     document.getElementById('lb').classList.remove('hidden');
     setLt('Transcribing your audio...');
     transcript = await transcribeFile(aFile);
-    if(!transcript){
+    if (!transcript) {
       document.getElementById('fallbackUp').classList.add('show');
       transcript = document.getElementById('upFbText').value.trim();
-      if(!transcript){
-        document.getElementById('lb').classList.add('hidden');
-        setBusy(false);
-        err('Could not auto-transcribe. Please type what you said in the box above, then click Analyze again.');
-        return;
+      if (!transcript) {
+        document.getElementById('lb').classList.add('hidden'); setBusy(false);
+        err('Could not auto-transcribe. Please type what you said in the box above, then click Analyze again.'); return;
       }
     }
   }
@@ -588,62 +825,54 @@ async function analyze(){
   document.getElementById('lb').classList.remove('hidden');
   setLt('Checking grammar...');
 
-  try{
+  try {
     const ltData    = await checkGrammar(transcript);
     const matches   = ltData.matches || [];
     const corrected = applyFixes(transcript, matches);
-    const gramIssues = matches.slice(0,6).map(m => m.message + (m.context ? ' [...'+m.context.text.trim()+'...]' : ''));
+    const gramIssues = matches.slice(0,6).map(m => m.message+(m.context?' [...'+m.context.text.trim()+'...]':''));
     const pronIssues = getPron(transcript);
     const wc = transcript.split(/\s+/).filter(Boolean).length;
     const sc = calcScore(matches.length, pronIssues.length, wc);
-
     renderResults(transcript, sc, makeSummary(sc,wc), pronIssues, corrected, gramIssues);
-
-    // auto-play corrected version after a short delay
-    storedOrig = transcript;
-    storedCorr = corrected || transcript;
-    setTimeout(() => ttsPlay('corr'), 600);
-
-  } catch(e){ err('Error: '+e.message); console.error(e); }
-  finally{ setBusy(false); document.getElementById('lb').classList.add('hidden'); }
+    storedOrig = transcript; storedCorr = corrected || transcript;
+    setTimeout(() => ttsPlay('corr'), 700);
+  } catch(e) { err('Error: '+e.message); console.error(e); }
+  finally { setBusy(false); document.getElementById('lb').classList.add('hidden'); }
 }
 
-function setBusy(on){
+function setBusy(on) {
   const btn = document.getElementById('ab');
   btn.disabled=on; btn.textContent = on ? 'Analyzing...' : '\u2726 Analyze My English';
 }
-function setLt(m){ const el=document.getElementById('lt'); if(el) el.textContent=m; }
+function setLt(m) { const el=document.getElementById('lt'); if(el) el.textContent=m; }
 
-function renderResults(transcript, sc, sm, pron, corrected, gram){
-  storedOrig = transcript;
-  storedCorr = corrected || transcript;
-
-  if(transcript){
+function renderResults(transcript, sc, sm, pron, corrected, gram) {
+  storedOrig=transcript; storedCorr=corrected||transcript;
+  if (transcript) {
     document.getElementById('trs').classList.remove('hidden');
     document.getElementById('tb').textContent = transcript;
   }
   document.getElementById('fbs').classList.remove('hidden');
-
   const el = document.getElementById('sd');
-  el.textContent = sc+'/100';
-  el.className = 'sc '+(sc>=80?'hi':sc>=55?'mi':'lo');
+  el.textContent = sc+'/100'; el.className = 'sc '+(sc>=80?'hi':sc>=55?'mi':'lo');
   document.getElementById('sum').textContent = sm;
-
   fillList('pl', pron);
   document.getElementById('pc').style.display = pron.length ? '' : 'none';
-
   document.getElementById('ct').textContent = corrected || transcript;
   fillList('gl', gram.length ? gram : ['No grammar issues found - great job!']);
   fillList('tl', [
-    'Listen to the corrected version above and repeat it out loud.',
+    voiceProfile
+      ? '🎙 Voice profile active: playback tuned to your '+voiceProfile.hz+'Hz pitch and '+voiceProfile.rate.toFixed(1)+'x speed.'
+      : 'Tip: sample your voice above to tune playback to your own tone.',
+    'Listen to the corrected version and repeat it out loud.',
     'Read English aloud 10 min/day - BBC News or TED Talks are great.',
-    'Record yourself and compare to native speakers to hear the differences.',
     'Practice minimal pairs: ship/sheep, bit/beat, cat/cut.',
     'Slow down - clarity always beats speed.',
   ]);
+  updateVoiceMode();
 }
 
-function fillList(id, items){
+function fillList(id, items) {
   const ul=document.getElementById(id); ul.innerHTML='';
   (items||[]).forEach(i => { const li=document.createElement('li'); li.textContent=i; ul.appendChild(li); });
 }
