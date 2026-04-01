@@ -1,3 +1,7 @@
 {
-  "_note": "This project no longer uses Node.js. See main.py and requirements.txt."
+  "name": "pronounceai-static",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Python project, no build needed'"
+  }
 }
