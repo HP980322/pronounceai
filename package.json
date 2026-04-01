@@ -1,7 +1,1 @@
-{
-  "name": "pronounceai-static",
-  "private": true,
-  "scripts": {
-    "build": "echo 'Python project, no build needed'"
-  }
-}
+{"private":true,"scripts":{"start":"echo 'not a node project'"}}
