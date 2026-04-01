@@ -53,6 +53,7 @@ textarea::placeholder{color:var(--muted)}
 .ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
 .ghost:hover{border-color:var(--accent);color:var(--accent)}
 .red{background:var(--danger);color:#fff}
+.teal{background:var(--accent2);color:#0d0f14}
 .big-btn{padding:14px;font-size:15px;font-weight:500;border-radius:12px;margin-top:18px;width:100%}
 .msg{padding:12px 18px;border-radius:10px;font-size:13px;margin-top:14px;line-height:1.5}
 .msg.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:var(--danger)}
@@ -64,7 +65,7 @@ textarea::placeholder{color:var(--muted)}
 .lt{text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;padding:28px}
 .tx-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;min-height:60px;white-space:pre-wrap}
 .fc{overflow:hidden}
-.fh{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.fh{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .ft{font-family:'Playfair Display',serif;font-size:1.05rem}
 .sc{font-family:'DM Mono',monospace;font-size:22px;font-weight:500}
 .sc.lo{color:var(--danger)}.sc.mi{color:#fb923c}.sc.hi{color:var(--success)}
@@ -72,7 +73,32 @@ textarea::placeholder{color:var(--muted)}
 .fl{list-style:none;padding:0}
 .fl li{display:flex;gap:10px;margin-bottom:8px;font-size:.88rem;line-height:1.6}
 .fl li::before{content:'\2192';color:var(--accent);flex-shrink:0;margin-top:3px}
-.cor{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:10px;padding:14px 18px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent2);line-height:1.7}
+/* TTS corrected box */
+.cor-wrap{position:relative}
+.cor{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:10px;padding:14px 18px 14px 18px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent2);line-height:1.8}
+/* TTS player panel */
+.tts-panel{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.tts-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tts-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);min-width:56px}
+.tts-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:opacity .2s,transform .1s;white-space:nowrap}
+.tts-btn:hover{opacity:.85;transform:translateY(-1px)}
+.tts-btn.play-orig{background:rgba(232,197,71,.12);border:1px solid rgba(232,197,71,.3);color:var(--accent)}
+.tts-btn.play-corr{background:rgba(94,234,212,.12);border:1px solid rgba(94,234,212,.3);color:var(--accent2)}
+.tts-btn.stop-btn{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:var(--danger)}
+.tts-btn.speaking{animation:tts-pulse 1s infinite}
+.tts-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+select.tts-sel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;outline:none;cursor:pointer;max-width:200px}
+select.tts-sel option{background:var(--surface)}
+input[type=range].tts-range{-webkit-appearance:none;appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;width:80px}
+input[type=range].tts-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent2);cursor:pointer}
+.speed-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);min-width:28px}
+.waveacc{display:flex;align-items:center;gap:2px;height:20px}
+.waveacc span{display:block;width:3px;border-radius:2px;background:var(--accent2);transform-origin:bottom;animation:wave 0.8s ease-in-out infinite}
+.waveacc span:nth-child(1){animation-delay:0s;height:8px}
+.waveacc span:nth-child(2){animation-delay:.15s;height:14px}
+.waveacc span:nth-child(3){animation-delay:.3s;height:10px}
+.waveacc span:nth-child(4){animation-delay:.45s;height:16px}
+.waveacc span:nth-child(5){animation-delay:.6s;height:7px}
 .hidden{display:none!important}
 footer{text-align:center;margin-top:56px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em}
 footer a{color:var(--accent);text-decoration:none}
@@ -81,6 +107,8 @@ footer a{color:var(--accent);text-decoration:none}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,.4)}50%{box-shadow:0 0 0 12px rgba(248,113,113,0)}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes wave{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.8)}}
+@keyframes tts-pulse{0%,100%{opacity:1}50%{opacity:.6}}
 </style>
 </head>
 <body>
@@ -88,7 +116,7 @@ footer a{color:var(--accent);text-decoration:none}
 <header>
   <div class="badge"><span class="dot"></span>Free &middot; No Login &middot; No API Key</div>
   <h1>Pronounce<span>AI</span></h1>
-  <p class="sub">Record or upload your English voice &mdash; get instant pronunciation and grammar feedback, completely free.</p>
+  <p class="sub">Record or upload your English voice &mdash; get grammar corrections and hear the correct pronunciation played back.</p>
 </header>
 
 <div class="card">
@@ -98,6 +126,7 @@ footer a{color:var(--accent);text-decoration:none}
     <div class="tab"     onclick="switchTab('txt')">&#9998; Text</div>
   </div>
 
+  <!-- RECORD -->
   <div id="recP">
     <div class="rec-area">
       <canvas id="wv"></canvas>
@@ -117,6 +146,7 @@ footer a{color:var(--accent);text-decoration:none}
     </div>
   </div>
 
+  <!-- UPLOAD -->
   <div id="upP" class="hidden">
     <div class="drop" id="dz">
       <input type="file" id="fi" accept="audio/*" onchange="onFile(this.files[0])">
@@ -128,7 +158,7 @@ footer a{color:var(--accent);text-decoration:none}
       <button class="btn ghost" style="padding:4px 12px;font-size:12px" onclick="clrFile()">&#10005;</button>
     </div>
     <p style="margin-top:12px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6">
-      &#9432; Best in <strong style="color:var(--text)">Chrome or Edge</strong>. If transcription fails, type your text in the box below.
+      &#9432; Best in <strong style="color:var(--text)">Chrome or Edge</strong>. If transcription fails, type your text below.
     </p>
     <div class="fallback" id="fallbackUp">
       <label>Type what you said (if transcription failed)</label>
@@ -136,6 +166,7 @@ footer a{color:var(--accent);text-decoration:none}
     </div>
   </div>
 
+  <!-- TEXT -->
   <div id="txtP" class="hidden">
     <div class="lbl" style="margin-bottom:10px">Paste or type English text</div>
     <textarea id="ti" placeholder="e.g. Yesterday I goes to the market and buyed some apple..."></textarea>
@@ -145,31 +176,68 @@ footer a{color:var(--accent);text-decoration:none}
   <button class="btn big-btn" id="ab" onclick="analyze()">&#10022; Analyze My English</button>
 </div>
 
+<!-- Results -->
 <div id="res" class="hidden">
   <div id="lb" class="hidden card" style="padding:20px">
     <div class="bar"></div>
     <div class="lt" id="lt">Analyzing...</div>
   </div>
+
+  <!-- Score -->
   <div id="trs" class="card hidden">
     <div class="lbl">&#128172; What you said</div>
     <div class="tx-box" id="tb"></div>
+    <!-- TTS: play original -->
+    <div class="tts-panel" style="margin-top:12px">
+      <div class="tts-row">
+        <span class="tts-label">Listen</span>
+        <button class="tts-btn play-orig" onclick="ttsPlay('orig')" id="btnOrig">&#9654; Play your version</button>
+        <button class="tts-btn stop-btn hidden" onclick="ttsStop()" id="btnStop">&#9632; Stop</button>
+        <div class="waveacc hidden" id="waveAcc"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="tts-row">
+        <span class="tts-label">Voice</span>
+        <select class="tts-sel" id="voiceSel" onchange="voiceChanged()"></select>
+      </div>
+      <div class="tts-row">
+        <span class="tts-label">Speed</span>
+        <input type="range" class="tts-range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.9" oninput="document.getElementById('speedVal').textContent=this.value+'x'">
+        <span class="speed-val" id="speedVal">0.9x</span>
+      </div>
+    </div>
   </div>
+
   <div id="fbs" class="hidden">
     <div class="card fc">
       <div class="fh"><div class="ft">Overall Fluency Score</div><div class="sc" id="sd">&mdash;</div></div>
       <div class="fb"><div class="lbl">Summary</div><div style="font-size:.92rem;line-height:1.7" id="sum"></div></div>
     </div>
+
     <div class="card fc" id="pc">
       <div class="fh"><div class="ft">&#128483; Pronunciation Patterns</div></div>
       <div class="fb"><ul class="fl" id="pl"></ul></div>
     </div>
+
+    <!-- Grammar + corrected voice -->
     <div class="card fc">
       <div class="fh"><div class="ft">&#9999; Grammar Corrections</div></div>
       <div class="fb">
-        <div class="lbl">Corrected Version</div><div class="cor" id="ct"></div>
+        <div class="lbl">Corrected Version</div>
+        <div class="cor" id="ct"></div>
+
+        <!-- TTS: play corrected -->
+        <div class="tts-panel" style="margin-top:10px">
+          <div class="tts-row">
+            <span class="tts-label">&#128266; Hear it</span>
+            <button class="tts-btn play-corr" onclick="ttsPlay('corr')" id="btnCorr">&#9654; Play corrected version</button>
+          </div>
+          <p style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">Listen carefully and repeat after the native voice</p>
+        </div>
+
         <div style="margin-top:16px"><div class="lbl">Issues Found</div><ul class="fl" id="gl"></ul></div>
       </div>
     </div>
+
     <div class="card fc">
       <div class="fh"><div class="ft">&#128161; Tips to Improve</div></div>
       <div class="fb"><ul class="fl" id="tl"></ul></div>
@@ -184,112 +252,181 @@ footer a{color:var(--accent);text-decoration:none}
 </div>
 
 <script>
-// state
-let curTab='rec',aFile=null,blob=null,liveTranscript='';
-let mRec=null,chunks=[],recInt=null,actx=null,anl=null,raf=null;
-let recSec=0,isRec=false,srLive=null;
+// ── state ─────────────────────────────────────────────────────────────────
+let curTab='rec', aFile=null, blob=null, liveTranscript='';
+let mRec=null, chunks=[], recInt=null, actx=null, anl=null, raf=null;
+let recSec=0, isRec=false, srLive=null;
+let storedOrig='', storedCorr='';
+let ttsVoices=[], preferredVoice=null, isSpeaking=false;
 
-// tabs
+// ── TTS setup ─────────────────────────────────────────────────────────────
+function loadVoices(){
+  ttsVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+  const sel = document.getElementById('voiceSel');
+  if(!sel) return;
+  sel.innerHTML = '';
+  ttsVoices.forEach((v,i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = v.name + (v.default?' (default)':'');
+    sel.appendChild(opt);
+  });
+  // prefer US English female voices
+  const preferred = ttsVoices.findIndex(v =>
+    v.lang === 'en-US' && /female|samantha|karen|victoria|zira|google us/i.test(v.name)
+  );
+  if(preferred >= 0){ sel.value = preferred; preferredVoice = ttsVoices[preferred]; }
+  else if(ttsVoices.length){ sel.value = 0; preferredVoice = ttsVoices[0]; }
+}
+
+function voiceChanged(){
+  const sel = document.getElementById('voiceSel');
+  preferredVoice = ttsVoices[parseInt(sel.value)] || null;
+}
+
+window.speechSynthesis.onvoiceschanged = loadVoices;
+window.addEventListener('load', loadVoices);
+
+function ttsPlay(which){
+  ttsStop();
+  const text = which === 'corr' ? storedCorr : storedOrig;
+  if(!text) return;
+
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang  = 'en-US';
+  utt.rate  = parseFloat(document.getElementById('speedRange').value);
+  utt.pitch = 1;
+  if(preferredVoice) utt.voice = preferredVoice;
+
+  utt.onstart = () => {
+    isSpeaking = true;
+    document.getElementById('btnStop').classList.remove('hidden');
+    document.getElementById('waveAcc').classList.remove('hidden');
+    const btn = which==='corr' ? document.getElementById('btnCorr') : document.getElementById('btnOrig');
+    if(btn) btn.classList.add('speaking');
+  };
+  utt.onend = utt.onerror = () => {
+    isSpeaking = false;
+    document.getElementById('btnStop').classList.add('hidden');
+    document.getElementById('waveAcc').classList.add('hidden');
+    document.getElementById('btnCorr').classList.remove('speaking');
+    document.getElementById('btnOrig').classList.remove('speaking');
+  };
+
+  speechSynthesis.speak(utt);
+}
+
+function ttsStop(){
+  speechSynthesis.cancel();
+  isSpeaking = false;
+  document.getElementById('btnStop').classList.add('hidden');
+  document.getElementById('waveAcc').classList.add('hidden');
+  document.getElementById('btnCorr').classList.remove('speaking');
+  document.getElementById('btnOrig').classList.remove('speaking');
+}
+
+// ── tabs ──────────────────────────────────────────────────────────────────
 function switchTab(t){
-  curTab=t;
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',['rec','up','txt'][i]===t));
-  document.getElementById('recP').classList.toggle('hidden',t!=='rec');
-  document.getElementById('upP').classList.toggle('hidden',t!=='up');
-  document.getElementById('txtP').classList.toggle('hidden',t!=='txt');
+  curTab = t;
+  document.querySelectorAll('.tab').forEach((el,i) =>
+    el.classList.toggle('on', ['rec','up','txt'][i] === t)
+  );
+  document.getElementById('recP').classList.toggle('hidden', t !== 'rec');
+  document.getElementById('upP') .classList.toggle('hidden', t !== 'up');
+  document.getElementById('txtP').classList.toggle('hidden', t !== 'txt');
   clrMsg();
 }
 
-// file upload
+// ── file upload ────────────────────────────────────────────────────────────
 function onFile(f){
-  if(!f||!f.type.startsWith('audio/')){err('Please select an audio file.');return;}
-  aFile=f;
-  document.getElementById('fn').textContent=f.name+'  ('+fmtB(f.size)+')';
+  if(!f || !f.type.startsWith('audio/')){ err('Please select an audio file.'); return; }
+  aFile = f;
+  document.getElementById('fn').textContent = f.name + '  (' + fmtB(f.size) + ')';
   document.getElementById('fc').classList.remove('hidden');
   clrMsg();
 }
-function clrFile(){aFile=null;document.getElementById('fi').value='';document.getElementById('fc').classList.add('hidden');}
-function fmtB(b){return b>1048576?(b/1048576).toFixed(1)+' MB':Math.round(b/1024)+' KB';}
+function clrFile(){ aFile=null; document.getElementById('fi').value=''; document.getElementById('fc').classList.add('hidden'); }
+function fmtB(b){ return b > 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.round(b/1024)+' KB'; }
 
-const dz=document.getElementById('dz');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
-dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])onFile(e.dataTransfer.files[0]);});
+const dz = document.getElementById('dz');
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if(e.dataTransfer.files[0]) onFile(e.dataTransfer.files[0]); });
 
-// recording + LIVE speech recognition simultaneously
-async function togRec(){isRec?stopRec():await startRec();}
+// ── recording + live SR ────────────────────────────────────────────────────
+async function togRec(){ isRec ? stopRec() : await startRec(); }
 
 async function startRec(){
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    chunks=[];blob=null;liveTranscript='';recSec=0;isRec=true;
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    chunks=[]; blob=null; liveTranscript=''; recSec=0; isRec=true;
     document.getElementById('recChip').classList.add('hidden');
     document.getElementById('noSRChip').classList.add('hidden');
     document.getElementById('fallbackRec').classList.remove('show');
     document.getElementById('liveBox').textContent='';
     document.getElementById('liveBox').classList.remove('show');
 
-    actx=new AudioContext();anl=actx.createAnalyser();anl.fftSize=256;
-    actx.createMediaStreamSource(stream).connect(anl);drawWv();
+    actx = new AudioContext(); anl = actx.createAnalyser(); anl.fftSize = 256;
+    actx.createMediaStreamSource(stream).connect(anl); drawWv();
 
-    mRec=new MediaRecorder(stream);
-    mRec.ondataavailable=e=>chunks.push(e.data);
-    mRec.onstop=()=>{
-      blob=new Blob(chunks,{type:'audio/webm'});
-      stream.getTracks().forEach(t=>t.stop());
-      if(actx){actx.close();actx=null;}
-      cancelAnimationFrame(raf);flatLine();
-      document.getElementById('pb').disabled=false;
-      document.getElementById('db').disabled=false;
-      setRst('Recorded: '+fmtT(recSec),false);
+    mRec = new MediaRecorder(stream);
+    mRec.ondataavailable = e => chunks.push(e.data);
+    mRec.onstop = () => {
+      blob = new Blob(chunks, { type: 'audio/webm' });
+      stream.getTracks().forEach(t => t.stop());
+      if(actx){ actx.close(); actx=null; }
+      cancelAnimationFrame(raf); flatLine();
+      document.getElementById('pb').disabled = false;
+      document.getElementById('db').disabled = false;
+      setRst('Recorded: ' + fmtT(recSec), false);
       if(liveTranscript){
-        document.getElementById('liveBox').textContent=liveTranscript;
+        document.getElementById('liveBox').textContent = liveTranscript;
         document.getElementById('liveBox').classList.add('show');
         document.getElementById('recChip').classList.remove('hidden');
-      }else{
+      } else {
         document.getElementById('noSRChip').classList.remove('hidden');
         document.getElementById('fallbackRec').classList.add('show');
       }
     };
     mRec.start(200);
     document.getElementById('rb').classList.add('on');
-    document.getElementById('pb').disabled=true;
-    document.getElementById('db').disabled=true;
-    recInt=setInterval(()=>{recSec++;setRst('Recording\u2026 '+fmtT(recSec),true);},1000);
-    setRst('Recording\u2026 0:00',true);
+    document.getElementById('pb').disabled = true;
+    document.getElementById('db').disabled = true;
+    recInt = setInterval(() => { recSec++; setRst('Recording\u2026 ' + fmtT(recSec), true); }, 1000);
+    setRst('Recording\u2026 0:00', true);
 
-    // start live SR alongside recording
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(SR){
-      srLive=new SR();srLive.lang='en-US';srLive.continuous=true;srLive.interimResults=true;
-      let finalText='';
-      srLive.onresult=e=>{
-        let interim='';
-        for(let i=e.resultIndex;i<e.results.length;i++){
-          if(e.results[i].isFinal)finalText+=e.results[i][0].transcript+' ';
-          else interim+=e.results[i][0].transcript;
+      srLive = new SR(); srLive.lang='en-US'; srLive.continuous=true; srLive.interimResults=true;
+      let finalText = '';
+      srLive.onresult = e => {
+        let interim = '';
+        for(let i = e.resultIndex; i < e.results.length; i++){
+          if(e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
+          else interim += e.results[i][0].transcript;
         }
-        const display=(finalText+interim).trim();
-        document.getElementById('liveBox').textContent=display||'';
-        document.getElementById('liveBox').classList.toggle('show',!!display);
-        liveTranscript=finalText.trim();
+        const display = (finalText + interim).trim();
+        document.getElementById('liveBox').textContent = display || '';
+        document.getElementById('liveBox').classList.toggle('show', !!display);
+        liveTranscript = finalText.trim();
       };
-      srLive.onerror=()=>{};
-      try{srLive.start();}catch(e){}
+      srLive.onerror = () => {};
+      try{ srLive.start(); } catch(e){}
     }
-  }catch(e){err('Microphone access denied. Please allow microphone permissions.');}
+  } catch(e){ err('Microphone access denied. Please allow microphone permissions.'); }
 }
 
 function stopRec(){
-  if(srLive){try{srLive.stop();}catch(e){}srLive=null;}
-  if(mRec&&mRec.state!=='inactive')mRec.stop();
-  clearInterval(recInt);isRec=false;
+  if(srLive){ try{ srLive.stop(); } catch(e){} srLive=null; }
+  if(mRec && mRec.state !== 'inactive') mRec.stop();
+  clearInterval(recInt); isRec=false;
   document.getElementById('rb').classList.remove('on');
 }
 
-function playRec(){if(blob)new Audio(URL.createObjectURL(blob)).play();}
+function playRec(){ if(blob) new Audio(URL.createObjectURL(blob)).play(); }
 
 function disRec(){
-  blob=null;chunks=[];liveTranscript='';
+  blob=null; chunks=[]; liveTranscript='';
   document.getElementById('pb').disabled=true;
   document.getElementById('db').disabled=true;
   document.getElementById('recChip').classList.add('hidden');
@@ -298,64 +435,63 @@ function disRec(){
   document.getElementById('liveBox').classList.remove('show');
   document.getElementById('liveBox').textContent='';
   document.getElementById('fbText').value='';
-  setRst('Press the button and speak in English',false);flatLine();
+  setRst('Press the button and speak in English', false); flatLine();
 }
 
-function setRst(m,a){const el=document.getElementById('rst');el.textContent=m;el.className='rec-st'+(a?' live':'');}
-function fmtT(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function setRst(m, a){ const el=document.getElementById('rst'); el.textContent=m; el.className='rec-st'+(a?' live':''); }
+function fmtT(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
 
-// waveform
+// ── waveform ───────────────────────────────────────────────────────────────
 function drawWv(){
-  const cv=document.getElementById('wv'),ctx=cv.getContext('2d');
-  const W=cv.offsetWidth,H=cv.offsetHeight;cv.width=W;cv.height=H;
+  const cv=document.getElementById('wv'), ctx=cv.getContext('2d');
+  const W=cv.offsetWidth, H=cv.offsetHeight; cv.width=W; cv.height=H;
   const arr=new Uint8Array(anl.frequencyBinCount);
   function draw(){
-    raf=requestAnimationFrame(draw);anl.getByteTimeDomainData(arr);
-    ctx.clearRect(0,0,W,H);ctx.beginPath();ctx.strokeStyle='#e8c547';ctx.lineWidth=1.5;
-    arr.forEach((v,i)=>{const x=i*(W/arr.length),y=(v/128)*(H/2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    raf=requestAnimationFrame(draw); anl.getByteTimeDomainData(arr);
+    ctx.clearRect(0,0,W,H); ctx.beginPath(); ctx.strokeStyle='#e8c547'; ctx.lineWidth=1.5;
+    arr.forEach((v,i)=>{ const x=i*(W/arr.length), y=(v/128)*(H/2); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
     ctx.stroke();
-  }draw();
+  } draw();
 }
 function flatLine(){
-  const cv=document.getElementById('wv');if(!cv)return;
-  const ctx=cv.getContext('2d'),W=cv.offsetWidth||600,H=cv.offsetHeight||48;
-  cv.width=W;cv.height=H;ctx.clearRect(0,0,W,H);
-  ctx.beginPath();ctx.strokeStyle='#2a2f42';ctx.lineWidth=1.5;ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  const cv=document.getElementById('wv'); if(!cv) return;
+  const ctx=cv.getContext('2d'), W=cv.offsetWidth||600, H=cv.offsetHeight||48;
+  cv.width=W; cv.height=H; ctx.clearRect(0,0,W,H);
+  ctx.beginPath(); ctx.strokeStyle='#2a2f42'; ctx.lineWidth=1.5; ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
 }
 
-// status
-function err(m){document.getElementById('sm').innerHTML='<div class="msg err">\u26a0\ufe0f '+m+'</div>';}
-function clrMsg(){document.getElementById('sm').innerHTML='';}
+// ── status ─────────────────────────────────────────────────────────────────
+function err(m){ document.getElementById('sm').innerHTML='<div class="msg err">\u26a0\ufe0f '+m+'</div>'; }
+function clrMsg(){ document.getElementById('sm').innerHTML=''; }
 
-// transcribe uploaded file via Web Speech playback
+// ── transcribe uploaded file via Web Speech playback ───────────────────────
 function transcribeFile(audioBlob){
-  return new Promise(resolve=>{
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR)return resolve('');
-    const audio=new Audio(URL.createObjectURL(audioBlob));
-    const rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=false;
+  return new Promise(resolve => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR) return resolve('');
+    const audio = new Audio(URL.createObjectURL(audioBlob));
+    const rec = new SR(); rec.lang='en-US'; rec.continuous=true; rec.interimResults=false;
     let result='';
-    rec.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)result+=e.results[i][0].transcript+' ';};
-    rec.onend=()=>resolve(result.trim());rec.onerror=()=>resolve(result.trim());
-    audio.play().then(()=>rec.start()).catch(()=>resolve(''));
-    audio.onended=()=>setTimeout(()=>rec.stop(),800);
+    rec.onresult = e => { for(let i=e.resultIndex;i<e.results.length;i++) if(e.results[i].isFinal) result+=e.results[i][0].transcript+' '; };
+    rec.onend = () => resolve(result.trim()); rec.onerror = () => resolve(result.trim());
+    audio.play().then(() => rec.start()).catch(() => resolve(''));
+    audio.onended = () => setTimeout(() => rec.stop(), 800);
   });
 }
 
-// grammar check with automatic local fallback if API fails
+// ── grammar check + local fallback ────────────────────────────────────────
 async function checkGrammar(text){
   try{
-    const fd=new FormData();fd.append('text',text);fd.append('language','en-US');
+    const fd=new FormData(); fd.append('text',text); fd.append('language','en-US');
     const r=await fetch('https://api.languagetool.org/v2/check',{method:'POST',body:fd});
-    if(!r.ok)throw new Error('HTTP '+r.status);
+    if(!r.ok) throw new Error('HTTP '+r.status);
     return await r.json();
   }catch(e){
-    console.warn('LanguageTool API unavailable, using local rules:',e.message);
+    console.warn('LanguageTool unavailable, using local rules:', e.message);
     return localGrammarCheck(text);
   }
 }
 
-// local grammar rules fallback
 function localGrammarCheck(text){
   const matches=[];
   const rules=[
@@ -369,25 +505,25 @@ function localGrammarCheck(text){
     [/\bhe\s+are\b|\bshe\s+are\b|\bit\s+are\b/gi,'Use "is" not "are" with he/she/it'],
     [/\bthey\s+is\b|\bwe\s+is\b|\byou\s+is\b/gi,'Use "are" not "is" with they/we/you'],
   ];
-  for(const[re,message]of rules){
-    const reCopy=new RegExp(re.source,re.flags);let m;
+  for(const [re,message] of rules){
+    const reCopy=new RegExp(re.source,re.flags); let m;
     while((m=reCopy.exec(text))!==null)
       matches.push({offset:m.index,length:m[0].length,message,context:{text:m[0]},replacements:[]});
   }
-  return{matches};
+  return {matches};
 }
 
-function applyFixes(text,matches){
-  if(!matches||!matches.length)return text;
-  let result=text,offset=0;
+function applyFixes(text, matches){
+  if(!matches||!matches.length) return text;
+  let result=text, offset=0;
   [...matches].filter(m=>m.replacements&&m.replacements.length).sort((a,b)=>a.offset-b.offset).forEach(m=>{
-    const fix=m.replacements[0].value,s=m.offset+offset,e2=s+m.length;
-    result=result.slice(0,s)+fix+result.slice(e2);offset+=fix.length-m.length;
+    const fix=m.replacements[0].value, s=m.offset+offset, e2=s+m.length;
+    result=result.slice(0,s)+fix+result.slice(e2); offset+=fix.length-m.length;
   });
   return result;
 }
 
-// pronunciation heuristics
+// ── pronunciation heuristics ───────────────────────────────────────────────
 const PRON=[
   [/\bth[eaio]/i,"'th' sounds - lightly place your tongue between your teeth"],
   [/tion\b/i,"'-tion' endings - pronounce as 'shun' (e.g. na-SHUN)"],
@@ -398,46 +534,46 @@ const PRON=[
   [/\bl\w+/i,"Words with 'l' - tongue tip touches just behind the upper teeth"],
   [/\bw[aeio]/i,"Words with 'w' - round your lips fully before speaking"],
 ];
-function getPron(text){return PRON.filter(([re])=>re.test(text)).map(([,tip])=>tip).slice(0,4);}
+function getPron(text){ return PRON.filter(([re])=>re.test(text)).map(([,tip])=>tip).slice(0,4); }
 
-// scoring
-function calcScore(g,p,w){return Math.max(10,Math.min(100,100-Math.min(g*9,45)-Math.min(p*5,25)+Math.min(w*2,15)));}
+// ── scoring ────────────────────────────────────────────────────────────────
+function calcScore(g,p,w){ return Math.max(10,Math.min(100,100-Math.min(g*9,45)-Math.min(p*5,25)+Math.min(w*2,15))); }
 function makeSummary(s,wc){
-  if(s>=90)return 'Excellent! Your '+wc+'-word message sounds very natural with minimal errors.';
-  if(s>=75)return 'Good English! '+wc+' words with just a few areas to polish. Keep it up!';
-  if(s>=55)return 'Solid intermediate English. Your '+wc+'-word message has some corrections below.';
-  if(s>=35)return 'Developing skills in your '+wc+'-word message. Focus on the feedback below.';
+  if(s>=90) return 'Excellent! Your '+wc+'-word message sounds very natural with minimal errors.';
+  if(s>=75) return 'Good English! '+wc+' words with just a few areas to polish. Keep it up!';
+  if(s>=55) return 'Solid intermediate English. Your '+wc+'-word message has some corrections below.';
+  if(s>=35) return 'Developing skills in your '+wc+'-word message. Focus on the feedback below.';
   return 'Keep practicing! Every correction helps. Review the feedback carefully.';
 }
 
-// main
+// ── main analyze ───────────────────────────────────────────────────────────
 async function analyze(){
-  clrMsg();
-  let transcript='';
+  clrMsg(); ttsStop();
+  let transcript = '';
 
   if(curTab==='txt'){
-    transcript=document.getElementById('ti').value.trim();
-    if(!transcript){err('Please enter some text to analyze.');return;}
+    transcript = document.getElementById('ti').value.trim();
+    if(!transcript){ err('Please enter some text to analyze.'); return; }
 
-  }else if(curTab==='rec'){
-    if(!blob){err('Please record some audio first - press the red button, speak, then press it again to stop.');return;}
-    transcript=liveTranscript||document.getElementById('fbText').value.trim();
+  } else if(curTab==='rec'){
+    if(!blob){ err('Please record some audio first - press the red button, speak, then press it again to stop.'); return; }
+    transcript = liveTranscript || document.getElementById('fbText').value.trim();
     if(!transcript){
       err('No transcript captured. Please type what you said in the box above, then click Analyze.');
       document.getElementById('fallbackRec').classList.add('show');
       return;
     }
 
-  }else if(curTab==='up'){
-    if(!aFile){err('Please upload an audio file first.');return;}
+  } else if(curTab==='up'){
+    if(!aFile){ err('Please upload an audio file first.'); return; }
     setBusy(true);
     document.getElementById('res').classList.remove('hidden');
     document.getElementById('lb').classList.remove('hidden');
     setLt('Transcribing your audio...');
-    transcript=await transcribeFile(aFile);
+    transcript = await transcribeFile(aFile);
     if(!transcript){
       document.getElementById('fallbackUp').classList.add('show');
-      transcript=document.getElementById('upFbText').value.trim();
+      transcript = document.getElementById('upFbText').value.trim();
       if(!transcript){
         document.getElementById('lb').classList.add('hidden');
         setBusy(false);
@@ -453,41 +589,66 @@ async function analyze(){
   setLt('Checking grammar...');
 
   try{
-    const ltData=await checkGrammar(transcript);
-    const matches=ltData.matches||[];
-    const corrected=applyFixes(transcript,matches);
-    const gramIssues=matches.slice(0,6).map(m=>m.message+(m.context?' [...'+m.context.text.trim()+'...]':''));
-    const pronIssues=getPron(transcript);
-    const wc=transcript.split(/\s+/).filter(Boolean).length;
-    const sc=calcScore(matches.length,pronIssues.length,wc);
-    renderResults(transcript,sc,makeSummary(sc,wc),pronIssues,corrected,gramIssues);
-  }catch(e){err('Error: '+e.message);console.error(e);}
-  finally{setBusy(false);document.getElementById('lb').classList.add('hidden');}
+    const ltData    = await checkGrammar(transcript);
+    const matches   = ltData.matches || [];
+    const corrected = applyFixes(transcript, matches);
+    const gramIssues = matches.slice(0,6).map(m => m.message + (m.context ? ' [...'+m.context.text.trim()+'...]' : ''));
+    const pronIssues = getPron(transcript);
+    const wc = transcript.split(/\s+/).filter(Boolean).length;
+    const sc = calcScore(matches.length, pronIssues.length, wc);
+
+    renderResults(transcript, sc, makeSummary(sc,wc), pronIssues, corrected, gramIssues);
+
+    // auto-play corrected version after a short delay
+    storedOrig = transcript;
+    storedCorr = corrected || transcript;
+    setTimeout(() => ttsPlay('corr'), 600);
+
+  } catch(e){ err('Error: '+e.message); console.error(e); }
+  finally{ setBusy(false); document.getElementById('lb').classList.add('hidden'); }
 }
 
 function setBusy(on){
-  const btn=document.getElementById('ab');
-  btn.disabled=on;btn.textContent=on?'Analyzing...':'\u2726 Analyze My English';
+  const btn = document.getElementById('ab');
+  btn.disabled=on; btn.textContent = on ? 'Analyzing...' : '\u2726 Analyze My English';
 }
-function setLt(m){const el=document.getElementById('lt');if(el)el.textContent=m;}
+function setLt(m){ const el=document.getElementById('lt'); if(el) el.textContent=m; }
 
-function renderResults(transcript,sc,sm,pron,corrected,gram){
-  if(transcript){document.getElementById('trs').classList.remove('hidden');document.getElementById('tb').textContent=transcript;}
+function renderResults(transcript, sc, sm, pron, corrected, gram){
+  storedOrig = transcript;
+  storedCorr = corrected || transcript;
+
+  if(transcript){
+    document.getElementById('trs').classList.remove('hidden');
+    document.getElementById('tb').textContent = transcript;
+  }
   document.getElementById('fbs').classList.remove('hidden');
-  const el=document.getElementById('sd');el.textContent=sc+'/100';el.className='sc '+(sc>=80?'hi':sc>=55?'mi':'lo');
-  document.getElementById('sum').textContent=sm;
-  fillList('pl',pron);document.getElementById('pc').style.display=pron.length?'':'none';
-  document.getElementById('ct').textContent=corrected||transcript;
-  fillList('gl',gram.length?gram:['No grammar issues found - great job!']);
-  fillList('tl',['Read English aloud 10 min/day - BBC News or TED Talks are great.','Record yourself and compare to native speakers to hear the differences.','Practice minimal pairs: ship/sheep, bit/beat, cat/cut.','Slow down - clarity always beats speed.']);
+
+  const el = document.getElementById('sd');
+  el.textContent = sc+'/100';
+  el.className = 'sc '+(sc>=80?'hi':sc>=55?'mi':'lo');
+  document.getElementById('sum').textContent = sm;
+
+  fillList('pl', pron);
+  document.getElementById('pc').style.display = pron.length ? '' : 'none';
+
+  document.getElementById('ct').textContent = corrected || transcript;
+  fillList('gl', gram.length ? gram : ['No grammar issues found - great job!']);
+  fillList('tl', [
+    'Listen to the corrected version above and repeat it out loud.',
+    'Read English aloud 10 min/day - BBC News or TED Talks are great.',
+    'Record yourself and compare to native speakers to hear the differences.',
+    'Practice minimal pairs: ship/sheep, bit/beat, cat/cut.',
+    'Slow down - clarity always beats speed.',
+  ]);
 }
 
-function fillList(id,items){
-  const ul=document.getElementById(id);ul.innerHTML='';
-  (items||[]).forEach(i=>{const li=document.createElement('li');li.textContent=i;ul.appendChild(li);});
+function fillList(id, items){
+  const ul=document.getElementById(id); ul.innerHTML='';
+  (items||[]).forEach(i => { const li=document.createElement('li'); li.textContent=i; ul.appendChild(li); });
 }
 
-document.addEventListener('DOMContentLoaded',flatLine);
+document.addEventListener('DOMContentLoaded', flatLine);
 </script>
 </body>
 </html>
