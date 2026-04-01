@@ -1,8 +1,11 @@
+[variables]
+NIXPACKS_PYTHON_VERSION = "3.11"
+
 [phases.setup]
-pkgs = ["python3"]
+pkgs = ["python311", "python311Packages.pip"]
 
 [phases.install]
-cmds = ["pip3 install -r requirements.txt"]
+cmds = ["python3.11 -m pip install --upgrade pip", "python3.11 -m pip install -r requirements.txt"]
 
 [start]
-cmd = "uvicorn main:app --host 0.0.0.0 --port $PORT"
+cmd = "python3.11 -m uvicorn main:app --host 0.0.0.0 --port $PORT"
