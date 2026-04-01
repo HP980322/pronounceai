@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PronounceAI — English Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0d0f14;--surface:#13161e;--surface2:#1c2030;--border:#2a2f42;
+  --accent:#e8c547;--accent2:#5eead4;--text:#e8eaf0;--muted:#6b7280;
+  --danger:#f87171;--success:#4ade80;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(232,197,71,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(232,197,71,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:40px 24px 80px}
+header{text-align:center;margin-bottom:48px;animation:fadeDown .7s ease both}
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--accent2);background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.2);padding:5px 14px;border-radius:20px;margin-bottom:16px;text-transform:uppercase}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:blink 2s infinite}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1.15;font-weight:700;letter-spacing:-.02em;margin-bottom:12px}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);font-size:.97rem;font-weight:300;max-width:500px;margin:0 auto;line-height:1.65}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;animation:fadeUp .5s .15s ease both}
+.tabs{display:flex;gap:4px;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:24px}
+.tab{flex:1;text-align:center;padding:9px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .2s;user-select:none}
+.tab.on{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.drop{border:2px dashed var(--border);border-radius:12px;padding:44px 24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
+.drop:hover,.drop.over{border-color:var(--accent);background:rgba(232,197,71,.04)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop-icon{font-size:2.2rem;margin-bottom:10px;display:block}
+.drop-lbl{font-size:.92rem;color:var(--muted);line-height:1.6}
+.drop-lbl strong{color:var(--text)}
+.file-row{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent2)}
+.rec-area{text-align:center;padding:16px 0 8px}
+.rec-btn{width:80px;height:80px;border-radius:50%;border:3px solid var(--danger);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;transition:all .2s}
+.rec-btn:hover{background:rgba(248,113,113,.08)}
+.rec-btn.on{background:rgba(248,113,113,.15);animation:pulse 1.2s infinite}
+.rec-dot{width:28px;height:28px;border-radius:50%;background:var(--danger);transition:border-radius .2s}
+.rec-btn.on .rec-dot{border-radius:5px}
+.rec-st{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-bottom:14px;min-height:20px}
+.rec-st.live{color:var(--danger)}
+#wv{width:100%;height:48px;border-radius:8px;background:var(--surface2);margin-bottom:14px}
+.rec-ctrls{display:flex;gap:10px;justify-content:center}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:vertical;min-height:110px;outline:none;line-height:1.7}
+textarea::placeholder{color:var(--muted)}
+.btn{background:var(--accent);color:#0d0f14;border:none;border-radius:10px;padding:11px 22px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;cursor:pointer;transition:opacity .2s,transform .1s;white-space:nowrap}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.red{background:var(--danger);color:#fff}
+.big-btn{flex:1;padding:14px;font-size:15px;font-weight:500;border-radius:12px;margin-top:18px;width:100%}
+.msg{padding:12px 18px;border-radius:10px;font-size:13px;margin-top:14px}
+.msg.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:var(--danger)}
+.msg.info{background:rgba(94,234,212,.07);border:1px solid rgba(94,234,212,.2);color:var(--accent2)}
+.lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:8px}
+.bar{height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:2px;margin-bottom:20px}
+.lt{text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;padding:28px}
+.tx-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;min-height:68px;white-space:pre-wrap}
+.fc{overflow:hidden}
+.fh{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ft{font-family:'Playfair Display',serif;font-size:1.05rem}
+.sc{font-family:'DM Mono',monospace;font-size:22px;font-weight:500}
+.sc.lo{color:var(--danger)}.sc.mi{color:#fb923c}.sc.hi{color:var(--success)}
+.fb{padding:22px 24px}
+.fl{list-style:none;padding:0}
+.fl li{display:flex;gap:10px;margin-bottom:8px;font-size:.88rem;line-height:1.6}
+.fl li::before{content:'→';color:var(--accent);flex-shrink:0;margin-top:3px}
+.cor{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:10px;padding:14px 18px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent2);line-height:1.7}
+.note{background:rgba(232,197,71,.06);border:1px solid rgba(232,197,71,.15);border-radius:10px;padding:12px 16px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:20px;line-height:1.6}
+.hidden{display:none!important}
+footer{text-align:center;margin-top:56px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em}
+footer a{color:var(--accent);text-decoration:none}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,.4)}50%{box-shadow:0 0 0 12px rgba(248,113,113,0)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="badge"><span class="dot"></span>Free &middot; No Login &middot; No API Key</div>
+  <h1>Pronounce<span>AI</span></h1>
+  <p class="sub">Upload or record your English voice &mdash; get instant pronunciation feedback and grammar corrections, completely free.</p>
+</header>
+
+<div class="card">
+  <div class="note">
+    ⚠️ <strong>Upload mode:</strong> plays your audio through the browser microphone listener to transcribe.
+    For best results use <strong>Chrome or Edge</strong>, or switch to “Record Live” / “Text” tab.
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="tab('up')">&#8679; Upload</div>
+    <div class="tab" onclick="tab('rec')">&#127897; Record</div>
+    <div class="tab" onclick="tab('txt')">&#9998; Text</div>
+  </div>
+
+  <!-- Upload -->
+  <div id="upP">
+    <div class="drop" id="dz">
+      <input type="file" id="fi" accept="audio/*" onchange="onFile(this.files[0])">
+      <span class="drop-icon">&#127925;</span>
+      <div class="drop-lbl"><strong>Drop audio file here</strong><br>or click to browse &middot; MP3 WAV M4A OGG WEBM</div>
+    </div>
+    <div id="fc" class="file-row hidden">
+      <span>&#128206;</span><span id="fn"></span>
+      <button class="btn ghost" style="padding:4px 12px;font-size:12px" onclick="clrFile()">&#10005;</button>
+    </div>
+  </div>
+
+  <!-- Record -->
+  <div id="recP" class="hidden">
+    <div class="rec-area">
+      <canvas id="wv"></canvas>
+      <button class="rec-btn" id="rb" onclick="togRec()"><div class="rec-dot"></div></button>
+      <div class="rec-st" id="rst">Click to start recording</div>
+      <div class="rec-ctrls">
+        <button class="btn ghost" id="pb" onclick="playRec()" disabled>&#9654; Play</button>
+        <button class="btn red"  id="db" onclick="disRec()" disabled>&#10005; Discard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Text -->
+  <div id="txtP" class="hidden">
+    <div class="lbl" style="margin-bottom:10px">Paste or type English text</div>
+    <textarea id="ti" placeholder="e.g. Yesterday I goes to the market and buyed some apple..."></textarea>
+  </div>
+
+  <div id="sm"></div>
+  <button class="btn big-btn" id="ab" onclick="analyze()">&#10022; Analyze My English</button>
+</div>
+
+<!-- Results -->
+<div id="res" class="hidden">
+  <div id="lb" class="hidden card" style="padding:20px">
+    <div class="bar"></div>
+    <div class="lt" id="lt">Analyzing...</div>
+  </div>
+
+  <div id="trs" class="card hidden">
+    <div class="lbl">&#128172; What you said</div>
+    <div class="tx-box" id="tb"></div>
+  </div>
+
+  <div id="fbs" class="hidden">
+
+    <div class="card fc">
+      <div class="fh"><div class="ft">Overall Fluency Score</div><div class="sc" id="sd">&mdash;</div></div>
+      <div class="fb"><div class="lbl">Summary</div><div style="font-size:.92rem;line-height:1.7" id="sum"></div></div>
+    </div>
+
+    <div class="card fc" id="pc">
+      <div class="fh"><div class="ft">&#128483; Pronunciation Patterns</div></div>
+      <div class="fb"><ul class="fl" id="pl"></ul></div>
+    </div>
+
+    <div class="card fc">
+      <div class="fh"><div class="ft">&#9999; Grammar Corrections</div></div>
+      <div class="fb">
+        <div class="lbl">Corrected Version</div>
+        <div class="cor" id="ct"></div>
+        <div style="margin-top:16px"><div class="lbl">Issues Found</div><ul class="fl" id="gl"></ul></div>
+      </div>
+    </div>
+
+    <div class="card fc">
+      <div class="fh"><div class="ft">&#128161; Tips to Improve</div></div>
+      <div class="fb"><ul class="fl" id="tl"></ul></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Grammar via <a href="https://languagetool.org" target="_blank">LanguageTool</a> public API &middot;
+  <a href="https://github.com/HP980322/pronounceai" target="_blank">GitHub</a>
+</footer>
+</div>
+
+<script>
+// ─ state
+let curTab='up', aFile=null, mRec=null, chunks=[], blob=null;
+let recInt=null, actx=null, anl=null, raf=null, recSec=0, isRec=false;
+
+// ─ tabs
+function tab(t){
+  curTab=t;
+  ['up','rec','txt'].forEach((x,i)=>{
+    document.querySelectorAll('.tab')[i].classList.toggle('on',x===t);
+    document.getElementById(x==='up'?'upP':x==='rec'?'recP':'txtP').classList.toggle('hidden',x!==t);
+  });
+}
+
+// ─ file
+function onFile(f){
+  if(!f||!f.type.startsWith('audio/')){err('Please select an audio file.');return;}
+  aFile=f;
+  document.getElementById('fn').textContent=f.name+'  ('+fmtB(f.size)+')';
+  document.getElementById('fc').classList.remove('hidden');
+  clrMsg();
+}
+function clrFile(){aFile=null;document.getElementById('fi').value='';document.getElementById('fc').classList.add('hidden');}
+function fmtB(b){return b>1048576?(b/1048576).toFixed(1)+' MB':Math.round(b/1024)+' KB';}
+
+// ─ drag/drop
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])onFile(e.dataTransfer.files[0]);});
+
+// ─ record
+async function togRec(){isRec?stopRec():await startRec();}
+async function startRec(){
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({audio:true});
+    chunks=[];blob=null;recSec=0;isRec=true;
+    actx=new AudioContext();anl=actx.createAnalyser();anl.fftSize=256;
+    actx.createMediaStreamSource(s).connect(anl);drawWv();
+    mRec=new MediaRecorder(s);
+    mRec.ondataavailable=e=>chunks.push(e.data);
+    mRec.onstop=()=>{
+      blob=new Blob(chunks,{type:'audio/webm'});
+      s.getTracks().forEach(t=>t.stop());
+      if(actx){actx.close();actx=null;}
+      cancelAnimationFrame(raf);flatLine();
+      document.getElementById('pb').disabled=false;
+      document.getElementById('db').disabled=false;
+      setRst('Recorded: '+fmtT(recSec),false);
+    };
+    mRec.start(200);
+    document.getElementById('rb').classList.add('on');
+    document.getElementById('pb').disabled=true;
+    document.getElementById('db').disabled=true;
+    recInt=setInterval(()=>{recSec++;setRst('Recording… '+fmtT(recSec),true);},1000);
+    setRst('Recording… 0:00',true);
+  }catch{err('Microphone access denied.');}
+}
+function stopRec(){
+  if(mRec&&mRec.state!=='inactive')mRec.stop();
+  clearInterval(recInt);isRec=false;
+  document.getElementById('rb').classList.remove('on');
+}
+function playRec(){if(blob)new Audio(URL.createObjectURL(blob)).play();}
+function disRec(){
+  blob=null;chunks=[];
+  document.getElementById('pb').disabled=true;
+  document.getElementById('db').disabled=true;
+  setRst('Click to start recording',false);flatLine();
+}
+function setRst(m,a){
+  const e=document.getElementById('rst');e.textContent=m;
+  e.className='rec-st'+(a?' live':'');
+}
+function fmtT(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+
+// ─ waveform
+function drawWv(){
+  const cv=document.getElementById('wv'),ctx=cv.getContext('2d');
+  const W=cv.offsetWidth,H=cv.offsetHeight;cv.width=W;cv.height=H;
+  const arr=new Uint8Array(anl.frequencyBinCount);
+  function draw(){
+    raf=requestAnimationFrame(draw);
+    anl.getByteTimeDomainData(arr);
+    ctx.clearRect(0,0,W,H);ctx.beginPath();
+    ctx.strokeStyle='#e8c547';ctx.lineWidth=1.5;
+    arr.forEach((v,i)=>{const x=i*(W/arr.length),y=(v/128)*(H/2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();
+  }draw();
+}
+function flatLine(){
+  const cv=document.getElementById('wv');if(!cv)return;
+  const ctx=cv.getContext('2d'),W=cv.offsetWidth||600,H=cv.offsetHeight||48;
+  cv.width=W;cv.height=H;ctx.clearRect(0,0,W,H);
+  ctx.beginPath();ctx.strokeStyle='#2a2f42';ctx.lineWidth=1.5;
+  ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+}
+
+// ─ status
+function err(m){document.getElementById('sm').innerHTML='<div class="msg err">⚠️ '+m+'</div>';}
+function info(m){document.getElementById('sm').innerHTML='<div class="msg info">'+m+'</div>';}
+function clrMsg(){document.getElementById('sm').innerHTML='';}
+
+// ─ transcribe via Web Speech API
+function transcribe(audioBlob){
+  return new Promise(resolve=>{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR)return resolve('');
+    const audio=new Audio(URL.createObjectURL(audioBlob));
+    const rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=false;
+    let result='';
+    rec.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)result+=e.results[i][0].transcript+' ';};
+    rec.onend=()=>resolve(result.trim());
+    rec.onerror=()=>resolve(result.trim());
+    audio.play().then(()=>rec.start()).catch(()=>resolve(''));
+    audio.onended=()=>setTimeout(()=>rec.stop(),800);
+  });
+}
+
+// ─ grammar via LanguageTool public API (free, no key)
+async function checkGrammar(text){
+  const fd=new FormData();
+  fd.append('text',text);
+  fd.append('language','en-US');
+  const r=await fetch('https://api.languagetool.org/v2/check',{method:'POST',body:fd});
+  if(!r.ok)throw new Error('Grammar check failed');
+  return r.json();
+}
+
+// ─ apply corrections
+function applyFixes(text,matches){
+  if(!matches||!matches.length)return text;
+  let result=text,offset=0;
+  const sorted=[...matches].sort((a,b)=>a.offset-b.offset);
+  for(const m of sorted){
+    if(!m.replacements||!m.replacements.length)continue;
+    const fix=m.replacements[0].value;
+    const s=m.offset+offset,e=s+m.length;
+    result=result.slice(0,s)+fix+result.slice(e);
+    offset+=fix.length-m.length;
+  }
+  return result;
+}
+
+// ─ pronunciation heuristics
+const PRON=[
+  [/\bth[eaio]/i,"'th' sounds — place your tongue between your teeth"],
+  [/tion\b/i,"'-tion' endings — pronounce as 'shun' (e.g. na-SHUN)"],
+  [/\w+ing\b/i,"'-ing' endings — voice the final 'g' clearly"],
+  [/\w+ed\b/i,"Past '-ed' endings have 3 sounds: /t/, /d/, or /ɪd/ — pick the right one"],
+  [/\bv\w+/i,"Words with 'v' — upper teeth touch lower lip (not like 'b')"],
+  [/\br\w+/i,"Words with 'r' — tongue should NOT touch the roof of your mouth"],
+  [/\bl\w+/i,"Words with 'l' — tongue tip touches the ridge behind upper teeth"],
+  [/\bw[aeio]/i,"Words starting 'w' — round your lips before speaking"],
+];
+function getPron(text){
+  return PRON.filter(([re])=>re.test(text)).map(([,tip])=>tip).slice(0,4);
+}
+
+// ─ score
+function score(gramIssues,pronIssues,wordCount){
+  const gp=Math.min(gramIssues*9,45);
+  const pp=Math.min(pronIssues*5,25);
+  const lb=Math.min(wordCount*2,15);
+  return Math.max(10,Math.min(100,100-gp-pp+lb));
+}
+function summary(s,wc){
+  if(s>=90)return `Excellent! Your ${wc}-word message sounds very natural. Just minor tweaks needed.`;
+  if(s>=75)return `Good English! ${wc} words with only a few areas to polish. Keep it up!`;
+  if(s>=55)return `Solid intermediate English. ${wc} words — work on the corrections below.`;
+  if(s>=35)return `Developing skills shown in your ${wc}-word message. Focus on the tips below.`;
+  return `Keep practicing! Review all corrections carefully — great progress starts here.`;
+}
+
+// ─ main analyze
+async function analyze(){
+  clrMsg();
+  const txtVal=document.getElementById('ti').value.trim();
+  const hasAudio=aFile||blob;
+  if(curTab==='txt'&&!txtVal){err('Please enter some text.');return;}
+  if(curTab!=='txt'&&!hasAudio){err('Please upload or record audio first.');return;}
+
+  setBusy(true);
+  document.getElementById('res').classList.remove('hidden');
+  document.getElementById('lb').classList.remove('hidden');
+  setLt('Analyzing...');
+
+  try{
+    let transcript=txtVal;
+
+    // transcribe audio
+    if(curTab!=='txt'){
+      setLt('Transcribing audio in browser...');
+      const audioBlob=aFile||blob;
+      transcript=await transcribe(audioBlob);
+      if(!transcript){
+        // fallback: ask user
+        err('Auto-transcription not available in this browser. Please use the Text tab and paste your text.');
+        setBusy(false);
+        document.getElementById('lb').classList.add('hidden');
+        return;
+      }
+    }
+
+    // grammar check
+    setLt('Checking grammar with LanguageTool...');
+    const ltData=await checkGrammar(transcript);
+    const matches=ltData.matches||[];
+    const corrected=applyFixes(transcript,matches);
+    const gramIssues=matches.slice(0,6).map(m=>m.message+(m.context?' […'+m.context.text.trim()+'…]':''));
+    const pronIssues=getPron(transcript);
+    const wc=transcript.split(/\s+/).filter(Boolean).length;
+    const sc=score(matches.length,pronIssues.length,wc);
+    const sm=summary(sc,wc);
+
+    render(transcript,sc,sm,pronIssues,corrected,gramIssues);
+  }catch(e){
+    err('Error: '+e.message);
+    console.error(e);
+  }finally{
+    setBusy(false);
+    document.getElementById('lb').classList.add('hidden');
+  }
+}
+
+function setBusy(on){
+  const btn=document.getElementById('ab');
+  btn.disabled=on;
+  btn.textContent=on?'Analyzing...':'\u2726 Analyze My English';
+}
+function setLt(m){const e=document.getElementById('lt');if(e)e.textContent=m;}
+
+function render(transcript,sc,sm,pron,corrected,gram){
+  // transcript
+  if(transcript){
+    document.getElementById('trs').classList.remove('hidden');
+    document.getElementById('tb').textContent=transcript;
+  }
+  document.getElementById('fbs').classList.remove('hidden');
+
+  // score
+  const el=document.getElementById('sd');
+  el.textContent=sc+'/100';
+  el.className='sc '+(sc>=80?'hi':sc>=55?'mi':'lo');
+  document.getElementById('sum').textContent=sm;
+
+  // pronunciation
+  fillList('pl',pron);
+  document.getElementById('pc').style.display=pron.length?'':'none';
+
+  // grammar
+  document.getElementById('ct').textContent=corrected||transcript;
+  fillList('gl',gram.length?gram:['No grammar issues found! Great job.']);
+
+  // tips
+  fillList('tl',[
+    'Read English aloud 10 min/day — BBC News or TED Talks work great.',
+    'Record yourself and compare to native speakers.',
+    'Practice minimal pairs: ship/sheep, bit/beat, cat/cut.',
+    'Slow down — clarity beats speed every time.',
+  ]);
+}
+
+function fillList(id,items){
+  const ul=document.getElementById(id);ul.innerHTML='';
+  (items||[]).forEach(i=>{const li=document.createElement('li');li.textContent=i;ul.appendChild(li);});
+}
+
+// init waveform
+document.addEventListener('DOMContentLoaded',flatLine);
+</script>
+</body>
+</html>
