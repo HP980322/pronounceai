@@ -73,19 +73,21 @@ textarea::placeholder{color:var(--muted)}
 .fl li{display:flex;gap:10px;margin-bottom:8px;font-size:.88rem;line-height:1.6}
 .fl li::before{content:'\2192';color:var(--accent);flex-shrink:0;margin-top:3px}
 .cor{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:10px;padding:14px 18px;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent2);line-height:1.8}
-/* Voice picker */
 .vc-card{background:linear-gradient(135deg,rgba(94,234,212,.05),rgba(232,197,71,.03));border:1px solid rgba(94,234,212,.25);border-radius:16px;padding:24px;margin-bottom:24px;animation:fadeUp .5s ease both}
 .vc-title{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:6px}
 .vc-sub{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:16px;line-height:1.6}
-.voice-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
-.voice-card{background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s}
-.voice-card:hover{border-color:var(--accent2);background:rgba(94,234,212,.05)}
+.vc-msg{font-family:'DM Mono',monospace;font-size:11px;margin-top:10px;padding:8px 12px;border-radius:8px;display:none}
+.vc-msg.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);color:var(--danger);display:block}
+.vc-msg.ok{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);color:var(--success);display:block}
+.voice-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.voice-card{background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;position:relative}
+.voice-card:hover{border-color:var(--accent2)}
 .voice-card.selected{border-color:var(--accent2);background:rgba(94,234,212,.08)}
 .voice-name{font-weight:600;font-size:13px;margin-bottom:2px}
-.voice-desc{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
-.voice-preview{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:11px;color:var(--accent2);cursor:pointer;font-family:'DM Mono',monospace}
-.voice-preview:hover{text-decoration:underline}
-/* TTS panel */
+.voice-desc{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.4}
+.preview-btn{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:var(--accent2);cursor:pointer;font-family:'DM Mono',monospace;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.25);border-radius:6px;padding:4px 8px;transition:opacity .2s}
+.preview-btn:hover{opacity:.8}
+.preview-btn.loading{opacity:.5;pointer-events:none}
 .tts-panel{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-top:12px;display:flex;flex-direction:column;gap:10px}
 .tts-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .tts-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);min-width:52px}
@@ -118,16 +120,13 @@ footer a{color:var(--accent);text-decoration:none}
   <p class="sub">Record your English, get grammar corrections, then hear the corrected version in a high-quality AI voice.</p>
 </header>
 
-<!-- Voice Picker -->
 <div class="vc-card">
   <div class="vc-title">&#127908; Choose a Voice</div>
-  <div class="vc-sub">Pick the voice that will read back your corrected English. Preview any voice before selecting.</div>
-  <div class="voice-grid" id="voiceGrid">
-    <div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:12px">Loading voices...</div>
-  </div>
+  <div class="vc-sub">Click a voice card to select it. Press Preview to hear a sample before choosing.</div>
+  <div class="voice-grid" id="voiceGrid"><div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:12px">Loading voices...</div></div>
+  <div class="vc-msg" id="vcMsg"></div>
 </div>
 
-<!-- Main input -->
 <div class="card">
   <div class="tabs">
     <div class="tab on" onclick="switchTab('rec')">&#127897; Record</div>
@@ -147,19 +146,12 @@ footer a{color:var(--accent);text-decoration:none}
       <div id="recChip" class="chip green hidden">&#10003; Ready &mdash; click Analyze!</div>
       <div id="noSRChip" class="chip yellow hidden">&#9888; Transcription unavailable &mdash; type below</div>
     </div>
-    <div class="fallback" id="fallbackRec">
-      <label>Type what you said</label>
-      <textarea id="fbText" rows="3" placeholder="e.g. Yesterday I goes to the market..."></textarea>
-    </div>
+    <div class="fallback" id="fallbackRec"><label>Type what you said</label><textarea id="fbText" rows="3" placeholder="e.g. Yesterday I goes to the market..."></textarea></div>
   </div>
   <div id="upP" class="hidden">
-    <div class="drop" id="dz">
-      <input type="file" id="fi" accept="audio/*" onchange="onFile(this.files[0])">
-      <span class="drop-icon">&#127925;</span>
-      <div class="drop-lbl"><strong>Drop audio file here</strong><br>or click to browse &middot; MP3 WAV M4A OGG WEBM</div>
-    </div>
+    <div class="drop" id="dz"><input type="file" id="fi" accept="audio/*" onchange="onFile(this.files[0])"><span class="drop-icon">&#127925;</span><div class="drop-lbl"><strong>Drop audio file here</strong><br>or click to browse &middot; MP3 WAV M4A OGG WEBM</div></div>
     <div id="fc" class="file-row hidden"><span>&#128206;</span><span id="fn"></span><button class="btn ghost" style="padding:4px 12px;font-size:12px" onclick="clrFile()">&#10005;</button></div>
-    <div class="fallback" id="fallbackUp"><label>Type what you said (if transcription failed)</label><textarea id="upFbText" rows="3" placeholder="e.g. Yesterday I goes to the market..."></textarea></div>
+    <div class="fallback" id="fallbackUp"><label>Type what you said</label><textarea id="upFbText" rows="3" placeholder="e.g. Yesterday I goes to the market..."></textarea></div>
   </div>
   <div id="txtP" class="hidden">
     <div class="lbl" style="margin-bottom:10px">Paste or type English text</div>
@@ -169,7 +161,6 @@ footer a{color:var(--accent);text-decoration:none}
   <button class="btn big-btn" id="ab" onclick="analyze()">&#10022; Analyze My English</button>
 </div>
 
-<!-- Results -->
 <div id="res" class="hidden">
   <div id="lb" class="hidden card" style="padding:20px"><div class="bar"></div><div class="lt" id="lt">Analyzing...</div></div>
   <div id="trs" class="card hidden">
@@ -192,10 +183,7 @@ footer a{color:var(--accent);text-decoration:none}
       <div class="fb">
         <div class="lbl">Corrected Version</div><div class="cor" id="ct"></div>
         <div class="tts-panel" style="margin-top:10px">
-          <div class="tts-row">
-            <span class="tts-label">&#128266; Hear it</span>
-            <button class="tts-btn play-corr" onclick="speak('corr')" id="btnCorr">&#9654; Play corrected version</button>
-          </div>
+          <div class="tts-row"><span class="tts-label">&#128266; Hear it</span><button class="tts-btn play-corr" onclick="speak('corr')" id="btnCorr">&#9654; Play corrected version</button></div>
           <p style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">&#127908; Listen carefully and repeat out loud</p>
         </div>
         <div style="margin-top:16px"><div class="lbl">Issues Found</div><ul class="fl" id="gl"></ul></div>
@@ -212,17 +200,16 @@ let curTab='rec',aFile=null,blob=null,liveTranscript='';
 let mRec=null,chunks=[],recInt=null,actx=null,anl=null,raf=null;
 let recSec=0,isRec=false,srLive=null;
 let storedOrig='',storedCorr='';
-let selectedVoiceId='21m00Tcm4TlvDq8ikWAM'; // default: Rachel
+let selectedVoiceId='21m00Tcm4TlvDq8ikWAM';
 let currentAudio=null;
 
-// Load voices from backend
 async function loadVoices(){
   try{
     const res=await fetch(API+'/api/voices');
     const data=await res.json();
     renderVoiceGrid(data.voices);
   }catch(e){
-    document.getElementById('voiceGrid').innerHTML='<div style="color:var(--muted);font-size:12px;font-family:\'DM Mono\',monospace">Could not load voices. Using default.</div>';
+    document.getElementById('voiceGrid').innerHTML='<div style="color:var(--muted);font-size:12px;font-family:\'DM Mono\',monospace">Could not load voices.</div>';
   }
 }
 
@@ -232,39 +219,55 @@ function renderVoiceGrid(voices){
   voices.forEach(v=>{
     const card=document.createElement('div');
     card.className='voice-card'+(v.id===selectedVoiceId?' selected':'');
-    card.innerHTML=`
-      <div class="voice-name">${v.name}</div>
-      <div class="voice-desc">${v.description}</div>
-      <div class="voice-preview" onclick="previewVoice('${v.id}','${v.name}',event)">&#9654; Preview</div>
-    `;
-    card.addEventListener('click',()=>selectVoice(v.id,card));
+    card.dataset.id=v.id;
+    card.innerHTML=`<div class="voice-name">${v.name}</div><div class="voice-desc">${v.description}</div><button class="preview-btn" id="prev-${v.id}">&#9654; Preview</button>`;
+    card.querySelector('.preview-btn').addEventListener('click', async e=>{
+      e.stopPropagation();
+      await previewVoice(v.id, v.name, e.currentTarget);
+    });
+    card.addEventListener('click', ()=>selectVoice(v.id));
     grid.appendChild(card);
   });
 }
 
-function selectVoice(id,card){
+function selectVoice(id){
   selectedVoiceId=id;
-  document.querySelectorAll('.voice-card').forEach(c=>c.classList.remove('selected'));
-  card.classList.add('selected');
+  document.querySelectorAll('.voice-card').forEach(c=>{
+    c.classList.toggle('selected', c.dataset.id===id);
+  });
 }
 
-async function previewVoice(id,name,e){
-  e.stopPropagation();
+function showVcMsg(msg, type){
+  const el=document.getElementById('vcMsg');
+  el.textContent=msg;
+  el.className='vc-msg '+type;
+}
+
+async function previewVoice(id, name, btn){
   stopAudio();
+  btn.textContent='Loading...';
+  btn.classList.add('loading');
   try{
     const res=await fetch(API+'/api/speak',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({voice_id:id,text:'Hello! My name is '+name+'. I will help you practice your English pronunciation today.'})
+      body:JSON.stringify({voice_id:id, text:'Hello! My name is '+name+'. I can help you practice your English pronunciation.'})
     });
-    if(!res.ok)throw new Error('Preview failed');
+    if(!res.ok){
+      const data=await res.json().catch(()=>({}));
+      throw new Error(data.detail||'Error '+res.status);
+    }
     const buf=await res.arrayBuffer();
     const url=URL.createObjectURL(new Blob([buf],{type:'audio/mpeg'}));
     currentAudio=new Audio(url);
-    currentAudio.onended=()=>URL.revokeObjectURL(url);
-    currentAudio.play();
+    currentAudio.onended=()=>{URL.revokeObjectURL(url);btn.textContent='\u25b6 Preview';btn.classList.remove('loading');};
+    currentAudio.onerror=()=>{btn.textContent='\u25b6 Preview';btn.classList.remove('loading');};
+    await currentAudio.play();
+    showVcMsg('Playing '+name+'... click any card to select that voice.','ok');
   }catch(e){
-    console.warn('Preview failed:',e.message);
+    btn.textContent='\u25b6 Preview';
+    btn.classList.remove('loading');
+    showVcMsg('Preview failed: '+e.message,'err');
   }
 }
 
@@ -279,7 +282,7 @@ async function speak(which){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({voice_id:selectedVoiceId,text})
     });
-    if(!res.ok)throw new Error('Speak error '+res.status);
+    if(!res.ok) throw new Error('Speak error '+res.status);
     const buf=await res.arrayBuffer();
     const url=URL.createObjectURL(new Blob([buf],{type:'audio/mpeg'}));
     currentAudio=new Audio(url);
@@ -295,19 +298,27 @@ async function speak(which){
 function browserTTS(text,which){
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=0.9;
-  u.onend=u.onerror=()=>setSpeaking(false);setSpeaking(true,which);speechSynthesis.speak(u);
+  u.onend=u.onerror=()=>setSpeaking(false);
+  setSpeaking(true,which);
+  speechSynthesis.speak(u);
 }
 
 function stopAudio(){
   if(currentAudio){currentAudio.pause();currentAudio=null;}
   speechSynthesis.cancel();setSpeaking(false);
+  document.querySelectorAll('.preview-btn').forEach(b=>{b.textContent='\u25b6 Preview';b.classList.remove('loading');});
 }
 
 function setSpeaking(on,which){
   document.getElementById('btnStop').classList.toggle('hidden',!on);
   document.getElementById('waveAcc').classList.toggle('hidden',!on);
-  if(!on){document.getElementById('btnCorr').classList.remove('speaking');document.getElementById('btnOrig').classList.remove('speaking');}
-  else if(which){const el=document.getElementById('btn'+which.charAt(0).toUpperCase()+which.slice(1));if(el)el.classList.add('speaking');}
+  if(!on){
+    document.getElementById('btnCorr').classList.remove('speaking');
+    document.getElementById('btnOrig').classList.remove('speaking');
+  }else if(which){
+    const el=document.getElementById('btn'+which.charAt(0).toUpperCase()+which.slice(1));
+    if(el)el.classList.add('speaking');
+  }
 }
 
 function switchTab(t){
@@ -317,10 +328,7 @@ function switchTab(t){
   clrMsg();
 }
 
-function onFile(f){
-  if(!f||!f.type.startsWith('audio/')){err('Please select an audio file.');return;}
-  aFile=f;document.getElementById('fn').textContent=f.name+'  ('+fmtB(f.size)+')';document.getElementById('fc').classList.remove('hidden');clrMsg();
-}
+function onFile(f){if(!f||!f.type.startsWith('audio/')){err('Please select an audio file.');return;}aFile=f;document.getElementById('fn').textContent=f.name+'  ('+fmtB(f.size)+')';document.getElementById('fc').classList.remove('hidden');clrMsg();}
 function clrFile(){aFile=null;document.getElementById('fi').value='';document.getElementById('fc').classList.add('hidden');}
 function fmtB(b){return b>1048576?(b/1048576).toFixed(1)+' MB':Math.round(b/1024)+' KB';}
 const dz=document.getElementById('dz');
@@ -382,8 +390,8 @@ function err(m){document.getElementById('sm').innerHTML='<div class="msg err">\u
 function clrMsg(){document.getElementById('sm').innerHTML='';}
 
 function transcribeFile(b){return new Promise(resolve=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return resolve('');const audio=new Audio(URL.createObjectURL(b));const rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=false;let r='';rec.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)r+=e.results[i][0].transcript+' ';};rec.onend=()=>resolve(r.trim());rec.onerror=()=>resolve(r.trim());audio.play().then(()=>rec.start()).catch(()=>resolve(''));audio.onended=()=>setTimeout(()=>rec.stop(),800);});}
-async function checkGrammar(text){try{const fd=new FormData();fd.append('text',text);fd.append('language','en-US');const r=await fetch('https://api.languagetool.org/v2/check',{method:'POST',body:fd});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}catch(e){return localGrammarCheck(text);}}
-function localGrammarCheck(text){const matches=[];const rules=[[/\b(I|he|she|it|we|they)\s+goes\b/gi,'Verb agreement: "goes" should be "go"'],[/\bbuyed\b/gi,'"buyed" \u2014 use "bought"'],[/\bgoed\b/gi,'"goed" \u2014 use "went"'],[/\bmore\s+\w+er\b/gi,'Avoid double comparatives'],[/\bI\s+are\b/gi,'Should be "I am"'],[/\bhe\s+are\b|\bshe\s+are\b|\bit\s+are\b/gi,'Use "is" not "are" with he/she/it'],[/\bthey\s+is\b|\bwe\s+is\b|\byou\s+is\b/gi,'Use "are" not "is"']];for(const[re,message]of rules){const rc=new RegExp(re.source,re.flags);let m;while((m=rc.exec(text))!==null)matches.push({offset:m.index,length:m[0].length,message,context:{text:m[0]},replacements:[]});}return{matches};}
+async function checkGrammar(text){try{const fd=new FormData();fd.append('text',text);fd.append('language','en-US');const r=await fetch('https://api.languagetool.org/v2/check',{method:'POST',body:fd});if(!r.ok)throw new Error();return await r.json();}catch(e){return localGrammarCheck(text);}}
+function localGrammarCheck(text){const matches=[];const rules=[[/\b(I|he|she|it|we|they)\s+goes\b/gi,'Verb agreement: "goes" should be "go"'],[/\bbuyed\b/gi,'"buyed" \u2014 use "bought"'],[/\bgoed\b/gi,'"goed" \u2014 use "went"'],[/\bI\s+are\b/gi,'Should be "I am"'],[/\bhe\s+are\b|\bshe\s+are\b|\bit\s+are\b/gi,'Use "is" not "are"'],[/\bthey\s+is\b|\bwe\s+is\b|\byou\s+is\b/gi,'Use "are" not "is"']];for(const[re,message]of rules){const rc=new RegExp(re.source,re.flags);let m;while((m=rc.exec(text))!==null)matches.push({offset:m.index,length:m[0].length,message,context:{text:m[0]},replacements:[]});}return{matches};}
 function applyFixes(text,matches){if(!matches||!matches.length)return text;let result=text,offset=0;[...matches].filter(m=>m.replacements&&m.replacements.length).sort((a,b)=>a.offset-b.offset).forEach(m=>{const fix=m.replacements[0].value,s=m.offset+offset,e2=s+m.length;result=result.slice(0,s)+fix+result.slice(e2);offset+=fix.length-m.length;});return result;}
 const PRON=[[/\bth[eaio]/i,"'th' \u2014 tongue between teeth"],[/tion\b/i,"'-tion' \u2014 pronounce as 'shun'"],[/\w+ing\b/i,"'-ing' \u2014 voice the final 'g'"],[/\w+ed\b/i,"'-ed': /t/ /d/ /\u026ad/"],[/\bv\w+/i,"'v' \u2014 upper teeth on lower lip"],[/\br\w+/i,"'r' \u2014 tongue NOT touching roof"],[/\bl\w+/i,"'l' \u2014 tongue tip behind upper teeth"],[/\bw[aeio]/i,"'w' \u2014 round lips first"]];
 function getPron(text){return PRON.filter(([re])=>re.test(text)).map(([,tip])=>tip).slice(0,4);}
@@ -422,7 +430,7 @@ function renderResults(transcript,sc,sm,pron,corrected,gram){
   fillList('pl',pron);document.getElementById('pc').style.display=pron.length?'':'none';
   document.getElementById('ct').textContent=corrected||transcript;
   fillList('gl',gram.length?gram:['No grammar issues \u2014 great job!']);
-  fillList('tl',['Listen to the corrected version and repeat it out loud immediately.','Read English aloud 10 min/day \u2014 BBC News or TED Talks.','Practice minimal pairs: ship/sheep, bit/beat, cat/cut.','Slow down \u2014 clarity always beats speed.']);
+  fillList('tl',['Listen and repeat out loud immediately after the playback.','Read English aloud 10 min/day \u2014 BBC News or TED Talks.','Practice minimal pairs: ship/sheep, bit/beat, cat/cut.','Slow down \u2014 clarity always beats speed.']);
 }
 function fillList(id,items){const ul=document.getElementById(id);ul.innerHTML='';(items||[]).forEach(i=>{const li=document.createElement('li');li.textContent=i;ul.appendChild(li);});}
 
