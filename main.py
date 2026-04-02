@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx, io, os, time
 from collections import defaultdict
 
-app = FastAPI(title="PronounceAI", version="4.1.0")
+app = FastAPI(title="PronounceAI", version="4.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,21 +19,21 @@ EL_API_KEY = os.getenv("ELEVENLABS_API_KEY", "").strip()
 EL_BASE    = "https://api.elevenlabs.io/v1"
 
 FREE_VOICES = [
-    {"id": "21m00Tcm4TlvDq8ikWAM", "name": "Rachel",   "description": "Calm, female, American"},
-    {"id": "AZnzlk1XvdvUeBnXmlld", "name": "Domi",     "description": "Strong, female, American"},
-    {"id": "EXAVITQu4vr4xnSDxMaL", "name": "Bella",    "description": "Soft, female, American"},
-    {"id": "ErXwobaYiN019PkySvjV", "name": "Antoni",   "description": "Warm, male, American"},
-    {"id": "MF3mGyEYCl7XYWbV9V6O", "name": "Elli",     "description": "Emotional, female, American"},
-    {"id": "TxGEqnHWrfWFTfGW9XjX", "name": "Josh",     "description": "Deep, male, American"},
-    {"id": "VR6AewLTigWG4xSOukaG", "name": "Arnold",   "description": "Crisp, male, American"},
-    {"id": "pNInz6obpgDQGcFmaJgB", "name": "Adam",     "description": "Deep, male, American"},
-    {"id": "yoZ06aMxZJJ28mfd3POQ", "name": "Sam",      "description": "Raspy, male, American"},
-    {"id": "onwK4e9ZLuTAKqWW03F9", "name": "Daniel",   "description": "Deep, male, British"},
-    {"id": "Xb7hH8MSUJpSbSDYk0k2", "name": "Alice",    "description": "Confident, female, British"},
-    {"id": "iP95p4xoKVk53GoZ742B", "name": "Chris",    "description": "Casual, male, American"},
-    {"id": "XB0fDUnXU5powFXDhCwa", "name": "Charlotte", "description": "Seductive, female, Swedish"},
-    {"id": "pMsXgVXv3BLzUgSXRplE", "name": "Serena",   "description": "Pleasant, female, American"},
-    {"id": "g5CIjZEefAph4nQFvHAz", "name": "Ethan",    "description": "Soft, male, American"},
+    {"id": "21m00Tcm4TlvDq8ikWAM", "name": "Rachel",    "description": "Calm, female, American"},
+    {"id": "AZnzlk1XvdvUeBnXmlld", "name": "Domi",      "description": "Strong, female, American"},
+    {"id": "EXAVITQu4vr4xnSDxMaL", "name": "Bella",     "description": "Soft, female, American"},
+    {"id": "ErXwobaYiN019PkySvjV", "name": "Antoni",    "description": "Warm, male, American"},
+    {"id": "MF3mGyEYCl7XYWbV9V6O", "name": "Elli",      "description": "Emotional, female, American"},
+    {"id": "TxGEqnHWrfWFTfGW9XjX", "name": "Josh",      "description": "Deep, male, American"},
+    {"id": "VR6AewLTigWG4xSOukaG", "name": "Arnold",    "description": "Crisp, male, American"},
+    {"id": "pNInz6obpgDQGcFmaJgB", "name": "Adam",      "description": "Deep, male, American"},
+    {"id": "yoZ06aMxZJJ28mfd3POQ", "name": "Sam",       "description": "Raspy, male, American"},
+    {"id": "onwK4e9ZLuTAKqWW03F9", "name": "Daniel",    "description": "Deep, male, British"},
+    {"id": "Xb7hH8MSUJpSbSDYk0k2", "name": "Alice",     "description": "Confident, female, British"},
+    {"id": "iP95p4xoKVk53GoZ742B", "name": "Chris",     "description": "Casual, male, American"},
+    {"id": "XB0fDUnXU5powFXDhCwa", "name": "Charlotte",  "description": "Seductive, female, Swedish"},
+    {"id": "pMsXgVXv3BLzUgSXRplE", "name": "Serena",    "description": "Pleasant, female, American"},
+    {"id": "g5CIjZEefAph4nQFvHAz", "name": "Ethan",     "description": "Soft, male, American"},
 ]
 
 RATE_LIMIT  = int(os.getenv("RATE_LIMIT", "20"))
@@ -72,10 +72,9 @@ async def speak(request: Request, payload: dict):
     if len(text) > 3000:
         raise HTTPException(status_code=400, detail="Text too long.")
 
-    # Use both header formats for maximum compatibility
+    # Use ONLY xi-api-key header (not both — ElevenLabs rejects requests with both headers)
     headers = {
         "xi-api-key": EL_API_KEY,
-        "Authorization": f"Bearer {EL_API_KEY}",
         "Accept": "audio/mpeg",
         "Content-Type": "application/json",
     }
@@ -92,7 +91,6 @@ async def speak(request: Request, payload: dict):
         )
 
     if not resp.is_success:
-        # Return detailed error for debugging
         try:
             err_body = resp.json()
         except Exception:
