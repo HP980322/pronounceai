@@ -1,5 +1,5 @@
 # PronounceAI - main.py
-# Uses Microsoft Edge TTS (free, no API key, high quality)
+# Uses Microsoft Edge TTS (free, no API key, high quality neural voices)
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse
@@ -8,7 +8,7 @@ import io, os, time
 from collections import defaultdict
 import edge_tts
 
-app = FastAPI(title="PronounceAI", version="5.0.0")
+app = FastAPI(title="PronounceAI", version="5.1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,23 +17,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# High quality Edge TTS voices
+# Most reliable Edge TTS voices (verified available globally)
 VOICES = [
-    {"id": "en-US-JennyNeural",      "name": "Jenny",    "description": "Friendly, female, American"},
-    {"id": "en-US-AriaNeural",       "name": "Aria",     "description": "Natural, female, American"},
-    {"id": "en-US-GuyNeural",        "name": "Guy",      "description": "Clear, male, American"},
-    {"id": "en-US-EricNeural",       "name": "Eric",     "description": "Calm, male, American"},
-    {"id": "en-US-SaraNeural",       "name": "Sara",     "description": "Warm, female, American"},
-    {"id": "en-US-ChristopherNeural","name": "Christopher","description": "Deep, male, American"},
-    {"id": "en-US-AnaNeural",        "name": "Ana",      "description": "Young, female, American"},
-    {"id": "en-US-BrandonNeural",    "name": "Brandon",  "description": "Strong, male, American"},
-    {"id": "en-GB-SoniaNeural",      "name": "Sonia",    "description": "Warm, female, British"},
-    {"id": "en-GB-RyanNeural",       "name": "Ryan",     "description": "Natural, male, British"},
-    {"id": "en-GB-LibbyNeural",      "name": "Libby",    "description": "Friendly, female, British"},
-    {"id": "en-AU-NatashaNeural",    "name": "Natasha",  "description": "Clear, female, Australian"},
-    {"id": "en-AU-WilliamNeural",    "name": "William",  "description": "Warm, male, Australian"},
-    {"id": "en-IN-NeerjaNeural",     "name": "Neerja",   "description": "Bright, female, Indian"},
-    {"id": "en-CA-ClaraNeural",      "name": "Clara",    "description": "Pleasant, female, Canadian"},
+    {"id": "en-US-JennyNeural",       "name": "Jenny",       "description": "Friendly, female, American"},
+    {"id": "en-US-AriaNeural",        "name": "Aria",        "description": "Natural, female, American"},
+    {"id": "en-US-GuyNeural",         "name": "Guy",         "description": "Clear, male, American"},
+    {"id": "en-US-EricNeural",        "name": "Eric",        "description": "Calm, male, American"},
+    {"id": "en-US-ChristopherNeural", "name": "Christopher", "description": "Deep, male, American"},
+    {"id": "en-US-AnaNeural",         "name": "Ana",         "description": "Young, female, American"},
+    {"id": "en-GB-SoniaNeural",       "name": "Sonia",       "description": "Warm, female, British"},
+    {"id": "en-GB-RyanNeural",        "name": "Ryan",        "description": "Natural, male, British"},
+    {"id": "en-GB-LibbyNeural",       "name": "Libby",       "description": "Friendly, female, British"},
+    {"id": "en-AU-NatashaNeural",     "name": "Natasha",     "description": "Clear, female, Australian"},
+    {"id": "en-AU-WilliamNeural",     "name": "William",     "description": "Warm, male, Australian"},
+    {"id": "en-CA-ClaraNeural",       "name": "Clara",       "description": "Pleasant, female, Canadian"},
+    {"id": "en-IN-NeerjaExpressiveNeural", "name": "Neerja", "description": "Expressive, female, Indian"},
 ]
 
 RATE_LIMIT  = int(os.getenv("RATE_LIMIT", "20"))
@@ -75,6 +73,8 @@ async def speak(request: Request, payload: dict):
             if chunk["type"] == "audio":
                 audio_buffer.write(chunk["data"])
         audio_buffer.seek(0)
+        if audio_buffer.getbuffer().nbytes == 0:
+            raise ValueError(f"No audio received for voice {voice_id}")
         return StreamingResponse(audio_buffer, media_type="audio/mpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"TTS error: {str(e)}")
