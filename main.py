@@ -1,12 +1,14 @@
 # PronounceAI - main.py
+# Uses Microsoft Edge TTS (free, no API key, high quality)
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-import httpx, io, os, time
+import io, os, time
 from collections import defaultdict
+import edge_tts
 
-app = FastAPI(title="PronounceAI", version="4.2.0")
+app = FastAPI(title="PronounceAI", version="5.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,25 +17,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-EL_API_KEY = os.getenv("ELEVENLABS_API_KEY", "").strip()
-EL_BASE    = "https://api.elevenlabs.io/v1"
-
-FREE_VOICES = [
-    {"id": "21m00Tcm4TlvDq8ikWAM", "name": "Rachel",    "description": "Calm, female, American"},
-    {"id": "AZnzlk1XvdvUeBnXmlld", "name": "Domi",      "description": "Strong, female, American"},
-    {"id": "EXAVITQu4vr4xnSDxMaL", "name": "Bella",     "description": "Soft, female, American"},
-    {"id": "ErXwobaYiN019PkySvjV", "name": "Antoni",    "description": "Warm, male, American"},
-    {"id": "MF3mGyEYCl7XYWbV9V6O", "name": "Elli",      "description": "Emotional, female, American"},
-    {"id": "TxGEqnHWrfWFTfGW9XjX", "name": "Josh",      "description": "Deep, male, American"},
-    {"id": "VR6AewLTigWG4xSOukaG", "name": "Arnold",    "description": "Crisp, male, American"},
-    {"id": "pNInz6obpgDQGcFmaJgB", "name": "Adam",      "description": "Deep, male, American"},
-    {"id": "yoZ06aMxZJJ28mfd3POQ", "name": "Sam",       "description": "Raspy, male, American"},
-    {"id": "onwK4e9ZLuTAKqWW03F9", "name": "Daniel",    "description": "Deep, male, British"},
-    {"id": "Xb7hH8MSUJpSbSDYk0k2", "name": "Alice",     "description": "Confident, female, British"},
-    {"id": "iP95p4xoKVk53GoZ742B", "name": "Chris",     "description": "Casual, male, American"},
-    {"id": "XB0fDUnXU5powFXDhCwa", "name": "Charlotte",  "description": "Seductive, female, Swedish"},
-    {"id": "pMsXgVXv3BLzUgSXRplE", "name": "Serena",    "description": "Pleasant, female, American"},
-    {"id": "g5CIjZEefAph4nQFvHAz", "name": "Ethan",     "description": "Soft, male, American"},
+# High quality Edge TTS voices
+VOICES = [
+    {"id": "en-US-JennyNeural",      "name": "Jenny",    "description": "Friendly, female, American"},
+    {"id": "en-US-AriaNeural",       "name": "Aria",     "description": "Natural, female, American"},
+    {"id": "en-US-GuyNeural",        "name": "Guy",      "description": "Clear, male, American"},
+    {"id": "en-US-EricNeural",       "name": "Eric",     "description": "Calm, male, American"},
+    {"id": "en-US-SaraNeural",       "name": "Sara",     "description": "Warm, female, American"},
+    {"id": "en-US-ChristopherNeural","name": "Christopher","description": "Deep, male, American"},
+    {"id": "en-US-AnaNeural",        "name": "Ana",      "description": "Young, female, American"},
+    {"id": "en-US-BrandonNeural",    "name": "Brandon",  "description": "Strong, male, American"},
+    {"id": "en-GB-SoniaNeural",      "name": "Sonia",    "description": "Warm, female, British"},
+    {"id": "en-GB-RyanNeural",       "name": "Ryan",     "description": "Natural, male, British"},
+    {"id": "en-GB-LibbyNeural",      "name": "Libby",    "description": "Friendly, female, British"},
+    {"id": "en-AU-NatashaNeural",    "name": "Natasha",  "description": "Clear, female, Australian"},
+    {"id": "en-AU-WilliamNeural",    "name": "William",  "description": "Warm, male, Australian"},
+    {"id": "en-IN-NeerjaNeural",     "name": "Neerja",   "description": "Bright, female, Indian"},
+    {"id": "en-CA-ClaraNeural",      "name": "Clara",    "description": "Pleasant, female, Canadian"},
 ]
 
 RATE_LIMIT  = int(os.getenv("RATE_LIMIT", "20"))
@@ -53,54 +53,31 @@ def check_rate(ip: str):
 
 @app.get("/api/health")
 def health():
-    key_preview = EL_API_KEY[:8] + "..." if EL_API_KEY else "NOT SET"
-    return {"status": "ok", "elevenlabs": bool(EL_API_KEY), "key_preview": key_preview}
+    return {"status": "ok", "tts": "Microsoft Edge TTS (free)"}
 
 @app.get("/api/voices")
 def get_voices():
-    return {"voices": FREE_VOICES}
+    return {"voices": VOICES}
 
 @app.post("/api/speak")
 async def speak(request: Request, payload: dict):
     check_rate(get_ip(request))
-    if not EL_API_KEY:
-        raise HTTPException(status_code=503, detail="ELEVENLABS_API_KEY not set on server.")
-    voice_id = payload.get("voice_id", "21m00Tcm4TlvDq8ikWAM").strip()
+    voice_id = payload.get("voice_id", "en-US-JennyNeural").strip()
     text     = (payload.get("text") or "").strip()
     if not text:
         raise HTTPException(status_code=400, detail="text is required.")
     if len(text) > 3000:
         raise HTTPException(status_code=400, detail="Text too long.")
-
-    # Use ONLY xi-api-key header (not both — ElevenLabs rejects requests with both headers)
-    headers = {
-        "xi-api-key": EL_API_KEY,
-        "Accept": "audio/mpeg",
-        "Content-Type": "application/json",
-    }
-
-    async with httpx.AsyncClient(timeout=60) as client:
-        resp = await client.post(
-            f"{EL_BASE}/text-to-speech/{voice_id}",
-            headers=headers,
-            json={
-                "text": text,
-                "model_id": "eleven_turbo_v2",
-                "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
-            },
-        )
-
-    if not resp.is_success:
-        try:
-            err_body = resp.json()
-        except Exception:
-            err_body = resp.text
-        raise HTTPException(
-            status_code=resp.status_code,
-            detail=f"ElevenLabs error {resp.status_code}: {err_body}"
-        )
-
-    return StreamingResponse(io.BytesIO(resp.content), media_type="audio/mpeg")
+    try:
+        communicate = edge_tts.Communicate(text, voice_id)
+        audio_buffer = io.BytesIO()
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_buffer.write(chunk["data"])
+        audio_buffer.seek(0)
+        return StreamingResponse(audio_buffer, media_type="audio/mpeg")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"TTS error: {str(e)}")
 
 # Serve frontend
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
